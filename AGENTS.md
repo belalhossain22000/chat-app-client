@@ -108,4 +108,24 @@ src/
 4. **Hydration Mismatch Prevention**:
    - For client-only values (e.g., token reading, local storage, dynamic timestamps), ensure safe hydration with proper initialization patterns or `mounted` checks.
 
+---
+
+## 8. Mobile-First & Immediate Responsiveness (Zero Deferral)
+
+1. **Immediate Responsiveness at Creation**:
+   - Every single component, modal, sheet, chat list, and input must be 100% mobile-responsive right when it is built. Mobile design is never an afterthought or deferred to a later polish phase.
+
+2. **Mobile Chat Ergonomics**:
+   - **Mobile (< 768px / md)**: Single-view navigation where clicking a conversation slides into the full-screen chat window, with an intuitive top back button (`< Back`) to return to the conversation list.
+   - **Desktop (>= 768px / md)**: Seamless split-view layout with conversation sidebar on the left and active chat window on the right.
+
+3. **Viewport & Keyboard Resilience**:
+   - Use `h-dvh` / `min-h-dvh` (Dynamic Viewport Height) rather than static `100vh` to adapt smoothly to mobile browser address bars and software keyboards.
+   - Sticky chat input bar with proper safe-area padding (`pb-safe`) for iOS Safari home bars and mobile virtual keyboards.
+
+4. **Touch Ergonomics & Accessibility**:
+   - Touch targets must be at least 44x44px for icon buttons, menu triggers, and action items.
+   - Zero horizontal overflow (`overflow-x-hidden`) on mobile viewports; proper line clamp and truncation on message previews and user names.
+
+
 
