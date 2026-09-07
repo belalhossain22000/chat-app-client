@@ -2,7 +2,7 @@ import { forwardRef, type CSSProperties, type HTMLAttributes } from "react";
 import { Users } from "lucide-react";
 import { cn } from "@/utils/cn";
 
-type Size = "sm" | "md" | "lg" | "xl";
+type Size = "xs" | "sm" | "md" | "lg" | "xl";
 
 export interface AvatarProps extends HTMLAttributes<HTMLSpanElement> {
   name?: string;
@@ -14,6 +14,7 @@ export interface AvatarProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const sizes: Record<Size, string> = {
+  xs: "size-5 text-[10px]",
   sm: "size-8 text-xs",
   md: "size-10 text-sm",
   lg: "size-12 text-base",
@@ -21,6 +22,7 @@ const sizes: Record<Size, string> = {
 };
 
 const dotSizes: Record<Size, string> = {
+  xs: "size-1.5 ring-2",
   sm: "size-2 ring-2",
   md: "size-2.5 ring-2",
   lg: "size-3 ring-2",

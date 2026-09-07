@@ -122,7 +122,7 @@ export function CreateGroupModal({
                   key={u.id}
                   className="inline-flex items-center gap-1.5 rounded-full bg-surface-muted py-1 pl-1 pr-2 text-xs text-ink"
                 >
-                  <Avatar name={u.name} size="sm" className="!size-5" />
+                  <Avatar name={u.name} size="xs" />
                   {u.name}
                   <button
                     type="button"

@@ -34,7 +34,8 @@ export function SidebarUserFooter() {
 
   return (
     <>
-      <div className="flex items-center gap-2 border-t border-line px-3 py-2.5">
+      {/* on mobile the account lives in the bottom bar's Profile tab */}
+      <div className="hidden items-center gap-2 border-t border-line px-3 py-2.5 md:flex">
         <Avatar name={user?.name} size="md" online color={avatarColor} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-ink">

@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Plus, Users, Search } from "lucide-react";
@@ -25,7 +22,8 @@ export function SidebarHeader({
         <Image src="/logo.png" alt="ChatFlow" width={240} height={80} priority className="h-16 w-auto" />
       </Link>
 
-      <div className="grid grid-cols-2 gap-2">
+      {/* actions live in the bottom bar on mobile */}
+      <div className="hidden grid-cols-2 gap-2 md:grid">
         <Button size="sm" onClick={onNewConversation}>
           <Plus className="size-4" />
           New conversation
@@ -41,7 +39,7 @@ export function SidebarHeader({
         </Button>
       </div>
 
-      <div className="mt-3 flex h-11 items-center gap-2.5 rounded-xl border border-line bg-surface-muted px-3.5 focus-within:ring-2 focus-within:ring-accent">
+      <div className="flex h-11 items-center gap-2.5 rounded-xl border border-line bg-surface-muted px-3.5 focus-within:ring-2 focus-within:ring-accent md:mt-3">
         <Search className="size-4 shrink-0 text-ink-muted" />
         <input
           type="search"
