@@ -2,7 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Spinner } from "@/components/ui/Spinner";
+import { ChatShellSkeleton } from "@/features/chat/components/ChatShellSkeleton";
 import { useGetMeQuery } from "@/features/auth/api/auth.api";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -34,11 +34,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
   }, [isError, dispatch]);
 
   if (!isInitialized || !token) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center bg-background">
-        <Spinner />
-      </div>
-    );
+    return <ChatShellSkeleton />;
   }
 
   return <>{children}</>;

@@ -1,10 +1,16 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { ChatUiState, SocketStatus } from "@/features/chat/types/chat.types";
+import type {
+  ChatUiState,
+  ConversationFilter,
+  SocketStatus,
+} from "@/features/chat/types/chat.types";
 
 const initialState: ChatUiState = {
   activeConversationId: null,
   socketStatus: "disconnected",
   unreadByConversationId: {},
+  isDetailsPanelOpen: true,
+  conversationFilter: "all",
 };
 
 const chatSlice = createSlice({
@@ -26,9 +32,25 @@ const chatSlice = createSlice({
     clearUnread(state, action: PayloadAction<string>) {
       delete state.unreadByConversationId[action.payload];
     },
+    setDetailsPanelOpen(state, action: PayloadAction<boolean>) {
+      state.isDetailsPanelOpen = action.payload;
+    },
+    toggleDetailsPanel(state) {
+      state.isDetailsPanelOpen = !state.isDetailsPanelOpen;
+    },
+    setConversationFilter(state, action: PayloadAction<ConversationFilter>) {
+      state.conversationFilter = action.payload;
+    },
   },
 });
 
-export const { setActiveConversation, setSocketStatus, incrementUnread, clearUnread } =
-  chatSlice.actions;
+export const {
+  setActiveConversation,
+  setSocketStatus,
+  incrementUnread,
+  clearUnread,
+  setDetailsPanelOpen,
+  toggleDetailsPanel,
+  setConversationFilter,
+} = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { ChatScreen } from "@/features/chat/components/ChatScreen";
 
 export const metadata: Metadata = {
   title: "Chat",
 };
 
 export default function ChatPage() {
-  return <div className="flex flex-1 items-center justify-center text-ink-muted">ChatWindow</div>;
+  return <ChatScreen />;
 }
