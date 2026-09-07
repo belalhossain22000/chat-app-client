@@ -52,7 +52,7 @@ export function SiteFooter() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,2.6fr)]">
           <div>
             <Image
-              src="/logo.png"
+              src="/logo.webp"
               alt="ChatFlow"
               width={200}
               height={68}

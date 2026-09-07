@@ -12,7 +12,7 @@ export default function NotFound() {
     <main className="flex min-h-dvh flex-col bg-background text-ink">
       <header className="flex items-center justify-between px-6 py-5 sm:px-10">
         <Link href="/" className="flex items-center gap-3">
-          <Image src="/logo.png" alt="ChatFlow" width={132} height={44} priority />
+          <Image src="/logo.webp" alt="ChatFlow" width={132} height={44} priority />
         </Link>
         <Link
           href="/"
@@ -33,7 +33,7 @@ export default function NotFound() {
           </span>
 
           <Image
-            src="/404.png"
+            src="/404.webp"
             alt="A confused panda sitting next to a large 404"
             width={880}
             height={440}

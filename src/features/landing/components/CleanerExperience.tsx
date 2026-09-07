@@ -38,7 +38,7 @@ export function CleanerExperience() {
 
         <div className="lg:-ml-28 lg:mr-4 xl:-ml-44 xl:mr-8">
           <Image
-            src="/cleaner-visual.png"
+            src="/cleaner-visual.webp"
             alt="A group chat thread with a shared file and a group info card"
             width={1980}
             height={840}

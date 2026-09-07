@@ -194,8 +194,23 @@ to a non-httpOnly cookie so `middleware.ts` can gate `/chat` at the edge.
 - **Local avatar presets** — the API has no avatar upload, so users pick a
   colour that's persisted in `localStorage` and reflected live everywhere via a
   `useSyncExternalStore` hook (cross-tab + in-tab).
-- _(more to come as messaging/real-time lands: e.g. offline send queue,
-  reconnect resync, "new messages" pill.)_
+- **"New messages" pill + non-intrusive auto-scroll** — the list follows new
+  messages only when you're already at the bottom; otherwise a count pill
+  appears and scroll position is kept (also when prepending older pages).
+- **Optimistic send with in-place retry** — a failed message stays where it is
+  with a "Message failed to send / Retry" banner; no lost text.
+- **Landing-page AI assistant** — a floating widget backed by
+  `POST /api/assistant`, which calls Google Gemini (`gemini-flash-latest`)
+  server-side. The API key lives in `GEMINI_API_KEY` (no `NEXT_PUBLIC_`), so it
+  never reaches the browser. A tight system prompt scopes it to ChatFlow
+  questions only. Abuse guard: in-memory per-IP rate limit
+  (`src/app/api/assistant/rateLimit.ts`) — 10/min, 40/hour, `429` + `Retry-After`
+  when exceeded; history capped at 12 messages, input at 2000 chars. In-memory
+  is per serverless instance; a shared store (Redis/Upstash) would be the
+  production choice.
+- **PWA** — `manifest.webmanifest` + a hand-written service worker
+  (`public/sw.js`, network-first for navigations, cache-first for assets, never
+  touches `/api` or the socket) so the app installs on any device.
 
 ---
 

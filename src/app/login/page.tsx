@@ -25,7 +25,7 @@ export default function LoginPage() {
         className="absolute left-6 top-6 z-10 sm:left-10 sm:top-8"
       >
         <Image
-          src="/logo.png"
+          src="/logo.webp"
           alt="ChatFlow"
           width={180}
           height={60}
@@ -36,7 +36,7 @@ export default function LoginPage() {
 
       <div className="relative hidden lg:block">
         <Image
-          src="/login-side-image.png"
+          src="/login-side-image.webp"
           alt="People connecting on ChatFlow"
           fill
           priority

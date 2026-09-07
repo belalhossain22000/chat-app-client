@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { RefreshCw, Wifi, ArrowLeft } from "lucide-react";
 import { ChatHeader } from "./ChatHeader";
 import { ChatHeaderSkeleton } from "./ChatHeaderSkeleton";
 import { MessageList } from "./MessageList";
-import { MessageInput } from "./MessageInput";
+import { MessageInput, type MessageInputHandle } from "./MessageInput";
 import { ChatDetailsPanel } from "./ChatDetailsPanel";
 import { GroupManagement } from "./GroupManagement";
+import { ChatAssistPanel } from "./ChatAssistPanel";
+import { SmartReplyBar } from "./SmartReplyBar";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Button } from "@/components/ui/Button";
@@ -28,6 +30,9 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
   const dispatch = useAppDispatch();
   const detailsOpen = useAppSelector((s) => s.chat.isDetailsPanelOpen);
   const closeDetails = () => dispatch(setDetailsPanelOpen(false));
+
+  const [assistOpen, setAssistOpen] = useState(false);
+  const inputRef = useRef<MessageInputHandle>(null);
 
   const { data: conversations } = useGetConversationsQuery();
   const conversation = useMemo(
@@ -93,7 +98,11 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
   return (
     <div className="relative flex h-full min-w-0">
       <div className="flex min-w-0 flex-1 flex-col bg-background">
-        <ChatHeader conversation={conversation} currentUserId={user?.id} />
+        <ChatHeader
+          conversation={conversation}
+          currentUserId={user?.id}
+          onOpenAssistant={() => setAssistOpen(true)}
+        />
 
         <div className="min-h-0 flex-1">
           {isError ? (
@@ -131,7 +140,27 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
           )}
         </div>
 
-        <MessageInput conversationId={conversationId} onSend={send} />
+        <SmartReplyBar
+          conversation={conversation}
+          messages={data?.messages ?? []}
+          currentUserId={user?.id}
+          onSend={send}
+        />
+
+        <MessageInput
+          ref={inputRef}
+          conversationId={conversationId}
+          onSend={send}
+        />
+
+        <ChatAssistPanel
+          open={assistOpen}
+          onClose={() => setAssistOpen(false)}
+          conversation={conversation}
+          messages={data?.messages ?? []}
+          currentUserId={user?.id}
+          onUseDraft={(text) => inputRef.current?.setText(text)}
+        />
       </div>
 
       {/* desktop: sliding side column */}

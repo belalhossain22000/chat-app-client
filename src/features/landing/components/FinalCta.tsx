@@ -6,7 +6,7 @@ export function FinalCta() {
   return (
     <section className="relative overflow-hidden bg-tint-coral/40">
       <Image
-        src="/cta-visual.png"
+        src="/cta-visual.webp"
         alt=""
         fill
         sizes="100vw"

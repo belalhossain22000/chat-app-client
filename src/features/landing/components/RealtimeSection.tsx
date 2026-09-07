@@ -39,7 +39,7 @@ export function RealtimeSection() {
 
         <div className="relative lg:-mr-16 xl:-mr-40">
           <Image
-            src="/realtime-visual.png"
+            src="/realtime-visual.webp"
             alt="A chat thread with a typing indicator, next to a phone lock-screen notification"
             width={1800}
             height={900}

@@ -19,7 +19,7 @@ export function SidebarHeader({
   return (
     <div className="border-b border-line px-4 pb-3 pt-4">
       <Link href="/" aria-label="ChatFlow home" className="mb-4 inline-block">
-        <Image src="/logo.png" alt="ChatFlow" width={240} height={80} priority className="h-16 w-auto" />
+        <Image src="/logo.webp" alt="ChatFlow" width={240} height={80} priority className="h-16 w-auto" />
       </Link>
 
       {/* actions live in the bottom bar on mobile */}

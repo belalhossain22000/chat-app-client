@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit } from "./rateLimit";
+import { callGemini, type GeminiTurn } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 
@@ -8,8 +9,6 @@ function clientIp(request: Request): string {
   if (fwd) return fwd.split(",")[0].trim();
   return request.headers.get("x-real-ip") ?? "unknown";
 }
-
-const MODEL = "gemini-flash-latest";
 
 const SYSTEM_PROMPT = `You are the ChatFlow assistant, a friendly helper on the ChatFlow marketing site.
 ChatFlow is a real-time chat web app. Key facts you may share:
@@ -28,20 +27,7 @@ Rules:
 - Keep replies short (1-3 sentences), warm, and concrete.
 - Never invent features that aren't listed above.`;
 
-interface ChatMessage {
-  role: "user" | "assistant";
-  content: string;
-}
-
 export async function POST(request: Request) {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) {
-    return NextResponse.json(
-      { error: "Assistant is not configured." },
-      { status: 503 },
-    );
-  }
-
   const rate = checkRateLimit(clientIp(request));
   if (!rate.ok) {
     return NextResponse.json(
@@ -50,71 +36,47 @@ export async function POST(request: Request) {
     );
   }
 
-  let messages: ChatMessage[];
+  let turns: GeminiTurn[];
   try {
     const body = (await request.json()) as { messages?: unknown };
     if (!Array.isArray(body.messages)) throw new Error("bad body");
-    messages = body.messages
+    turns = body.messages
       .slice(-12)
       .filter(
-        (m): m is ChatMessage =>
+        (m): m is GeminiTurn =>
           !!m &&
-          typeof (m as ChatMessage).content === "string" &&
-          ((m as ChatMessage).role === "user" ||
-            (m as ChatMessage).role === "assistant"),
+          typeof (m as GeminiTurn).content === "string" &&
+          ((m as GeminiTurn).role === "user" ||
+            (m as GeminiTurn).role === "assistant"),
       );
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  if (messages.length === 0) {
+  if (turns.length === 0) {
     return NextResponse.json({ error: "No message provided." }, { status: 400 });
   }
 
-  const contents = messages.map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content.slice(0, 2000) }],
-  }));
+  const result = await callGemini({ system: SYSTEM_PROMPT, turns });
 
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents,
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          generationConfig: {
-            temperature: 0.5,
-            maxOutputTokens: 500,
-            thinkingConfig: { thinkingBudget: 0 },
-          },
-        }),
-      },
-    );
-
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      console.error("Gemini error", res.status, detail.slice(0, 500));
+  if (!result.ok) {
+    if (result.status === 503) {
       return NextResponse.json(
-        { error: "The assistant is unavailable right now." },
-        { status: 502 },
+        { error: "Assistant is not configured." },
+        { status: 503 },
       );
     }
-
-    const data = await res.json();
-    const reply: string =
-      data?.candidates?.[0]?.content?.parts
-        ?.map((p: { text?: string }) => p.text ?? "")
-        .join("")
-        .trim() || "Sorry, I couldn't come up with an answer.";
-
-    return NextResponse.json({ reply });
-  } catch {
+    console.error("assistant gemini error", result.detail);
+    const quota = result.detail?.includes("RESOURCE_EXHAUSTED");
     return NextResponse.json(
-      { error: "Couldn't reach the assistant." },
+      {
+        error: quota
+          ? "The assistant has hit its daily limit. Please try again later."
+          : "The assistant is unavailable right now.",
+      },
       { status: 502 },
     );
   }
+
+  return NextResponse.json({ reply: result.text });
 }

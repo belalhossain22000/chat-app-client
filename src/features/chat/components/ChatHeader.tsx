@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, PanelRightOpen, PanelRightClose } from "lucide-react";
+import { ArrowLeft, PanelRightOpen, PanelRightClose, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { IconButton } from "@/components/ui/IconButton";
@@ -16,9 +16,14 @@ import { conversationTitle } from "@/features/chat/utils/normalizeConversation";
 interface ChatHeaderProps {
   conversation: Conversation;
   currentUserId?: string;
+  onOpenAssistant?: () => void;
 }
 
-export function ChatHeader({ conversation, currentUserId }: ChatHeaderProps) {
+export function ChatHeader({
+  conversation,
+  currentUserId,
+  onOpenAssistant,
+}: ChatHeaderProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const detailsOpen = useAppSelector((s) => s.chat.isDetailsPanelOpen);
@@ -59,6 +64,12 @@ export function ChatHeader({ conversation, currentUserId }: ChatHeaderProps) {
           )}
         </span>
       </button>
+
+      {onOpenAssistant && (
+        <IconButton label="Chat assistant" onClick={onOpenAssistant}>
+          <Sparkles className="size-5" />
+        </IconButton>
+      )}
 
       {/* desktop-only collapse toggle */}
       <IconButton

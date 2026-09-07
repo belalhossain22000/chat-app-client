@@ -41,7 +41,7 @@ export function EveryScreen() {
 
         <div className="relative lg:-mr-16 xl:-mr-32">
           <Image
-            src="/everyscreen-visual.png"
+            src="/everyscreen-visual.webp"
             alt="ChatFlow running on desktop, tablet, and mobile"
             width={1774}
             height={887}

@@ -11,7 +11,7 @@ const miniFeatures = [
 export function Hero() {
   return (
     <section id="product" className="relative overflow-hidden">
-      <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 pb-5 pt-0 sm:px-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-4 lg:pb-6 lg:pr-0 lg:pt-0">
+      <div className="mx-auto grid max-w-7xl items-center gap-6 px-5 pb-8 pt-6 sm:px-8 sm:pt-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-4 lg:pb-6 lg:pr-0 lg:pt-0">
         <div className="flex flex-col justify-center lg:pr-4">
           <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-tint-mint px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-success-ink">
             Real-time messaging
@@ -66,7 +66,7 @@ export function Hero() {
 
         <div className="relative lg:-mr-8 xl:-mr-20">
           <Image
-            src="/hero-visual.png"
+            src="/hero-visual.webp"
             alt="ChatFlow app — conversation list and an open chat thread"
             width={1536}
             height={1024}
