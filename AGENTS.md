@@ -86,3 +86,26 @@ src/
 - **Continuous Quality Gate**: Enforce clean code, zero unnecessary re-renders, and production-grade TypeScript on every single file.
 - **Transparent Decision-Making**: Explain architectural choices (why RTK Query vs custom hooks, why leaf state isolation, why specific memoization) so the project is 100% interview-ready and defendable.
 
+---
+
+## 7. Rendering Strategy: Server Components (SSR/RSC) vs Client Components (CSR)
+
+1. **Server Components by Default (RSC)**:
+   - Root layouts, static marketing/landing sections, metadata/SEO, and non-interactive UI shells stay as React Server Components.
+   - Zero unnecessary JavaScript sent to the client; faster initial page load and superior Time to Interactive (TTI).
+
+2. **Client Components (`"use client"`) Only When Required**:
+   - Apply `"use client"` strictly when components need:
+     - React hooks (`useState`, `useEffect`, `useCallback`, `useMemo`, `useRef`).
+     - Redux / RTK Query hooks (`useAppSelector`, `useAppDispatch`, API query/mutation hooks).
+     - Browser-only APIs (`window`, `localStorage`, `document`, WebSockets / Socket.IO).
+     - DOM event listeners (`onClick`, `onChange`, `onKeyDown`).
+
+3. **Push Client Boundaries Down to Leaves (Boundary Pushdown)**:
+   - Never turn an entire route or large container into `"use client"` just because an inner button or input needs interactivity.
+   - Keep page wrappers as Server Components and import granular interactive Client Components into them, or pass server-rendered content as `children` / slots.
+
+4. **Hydration Mismatch Prevention**:
+   - For client-only values (e.g., token reading, local storage, dynamic timestamps), ensure safe hydration with proper initialization patterns or `mounted` checks.
+
+
