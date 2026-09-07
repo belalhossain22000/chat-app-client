@@ -46,43 +46,41 @@ function MessageBubbleBase({
         <div
           className={cn(
             "rounded-2xl px-4 py-2.5 text-sm",
-            mine
-              ? "rounded-br-md bg-accent text-accent-contrast"
-              : "rounded-bl-md bg-surface-muted text-ink",
+            failed
+              ? "rounded-br-md bg-tint-coral/60 text-ink"
+              : mine
+                ? "rounded-br-md bg-accent text-accent-contrast"
+                : "rounded-bl-md bg-surface-muted text-ink",
             message.status === "sending" && "opacity-70",
           )}
         >
           <p className="whitespace-pre-wrap break-words">{message.text}</p>
         </div>
 
-        <div
-          className={cn(
-            "mt-1 flex items-center gap-1.5 px-1 text-xs",
-            failed ? "text-accent" : "text-ink-muted",
-          )}
-        >
-          {failed ? (
-            <>
-              <AlertCircle className="size-3.5" />
-              <span>Not sent</span>
-              {onRetry && (
-                <button
-                  type="button"
-                  onClick={() => onRetry(message)}
-                  className="font-medium underline"
-                >
-                  Retry
-                </button>
-              )}
-            </>
-          ) : (
-            <span>
-              {message.status === "sending"
-                ? "Sending…"
-                : formatMessageTime(message.createdAt)}
-            </span>
-          )}
-        </div>
+        {failed ? (
+          <div className="mt-1 flex items-center gap-2 rounded-lg bg-tint-coral/50 px-3 py-2 text-xs">
+            <AlertCircle className="size-4 shrink-0 text-accent" />
+            <div className="flex-1">
+              <p className="font-medium text-accent">Message failed to send</p>
+              <p className="text-ink-muted">Check your connection and try again.</p>
+            </div>
+            {onRetry && (
+              <button
+                type="button"
+                onClick={() => onRetry(message)}
+                className="font-semibold text-accent hover:underline"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        ) : (
+          <span className="mt-1 px-1 text-xs text-ink-muted">
+            {message.status === "sending"
+              ? "Sending…"
+              : formatMessageTime(message.createdAt)}
+          </span>
+        )}
       </div>
     </div>
   );

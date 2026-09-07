@@ -8,8 +8,9 @@ import { MessageInput } from "./MessageInput";
 import { ChatDetailsPanel } from "./ChatDetailsPanel";
 import { GroupManagement } from "./GroupManagement";
 import { SidePanel } from "@/components/ui/SidePanel";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { Button } from "@/components/ui/Button";
+import { RefreshCw, Wifi } from "lucide-react";
 import { useGetConversationsQuery } from "@/features/chat/api/conversations.api";
 import {
   useGetMessagesQuery,
@@ -87,13 +88,23 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
 
         <div className="min-h-0 flex-1">
           {isError ? (
-            <EmptyState
+            <ErrorState
               className="h-full"
               title="Couldn't load messages"
-              description="Something went wrong while loading this conversation."
-              action={
-                <Button variant="secondary" onClick={() => refetch()}>
+              description="Something went wrong while loading the conversation. Please check your internet connection and try again."
+              primaryAction={
+                <Button onClick={() => refetch()}>
+                  <RefreshCw className="size-4" />
                   Try again
+                </Button>
+              }
+              secondaryAction={
+                <Button
+                  variant="secondary"
+                  onClick={() => window.location.reload()}
+                >
+                  <Wifi className="size-4" />
+                  Refresh page
                 </Button>
               }
             />

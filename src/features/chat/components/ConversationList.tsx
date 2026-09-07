@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MessagesSquare, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { ConversationItem } from "./ConversationItem";
 import { ConversationListSkeleton } from "./ConversationListSkeleton";
 import { useGetConversationsQuery } from "@/features/chat/api/conversations.api";
@@ -53,14 +54,12 @@ export function ConversationList({ search, onNewConversation }: ConversationList
 
   if (isError) {
     return (
-      <EmptyState
-        className="h-full"
+      <ErrorState
+        className="h-full py-10"
         title="Couldn't load conversations"
         description="Something went wrong while loading your conversations."
-        action={
-          <Button variant="secondary" onClick={() => refetch()}>
-            Try again
-          </Button>
+        primaryAction={
+          <Button onClick={() => refetch()}>Try again</Button>
         }
       />
     );

@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { RefreshCw } from "lucide-react";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Button } from "@/components/ui/Button";
 
 export default function AppError({
   error,
@@ -14,19 +17,22 @@ export default function AppError({
   }, [error]);
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-      <h1 className="text-lg font-semibold text-ink">Something went wrong</h1>
-      <p className="max-w-sm text-sm text-ink-muted">
-        An unexpected error occurred. You can try again, and if it keeps happening,
-        refresh the page.
-      </p>
-      <button
-        type="button"
-        onClick={reset}
-        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-hover"
-      >
-        Try again
-      </button>
+    <div className="flex min-h-dvh flex-1 items-center justify-center bg-background">
+      <ErrorState
+        title="Something went wrong"
+        description="An unexpected error occurred. You can try again, and if it keeps happening, refresh the page."
+        primaryAction={
+          <Button onClick={reset}>
+            <RefreshCw className="size-4" />
+            Try again
+          </Button>
+        }
+        secondaryAction={
+          <Button variant="secondary" onClick={() => window.location.reload()}>
+            Refresh page
+          </Button>
+        }
+      />
     </div>
   );
 }
