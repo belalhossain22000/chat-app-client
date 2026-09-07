@@ -6,6 +6,19 @@ import { Avatar } from "@/components/ui/Avatar";
 import type { Conversation } from "@/features/chat/types/conversation.types";
 import { conversationTitle } from "@/features/chat/utils/normalizeConversation";
 import { formatlistTime } from "@/features/chat/utils/formatTime";
+import { parseMessageText } from "@/features/chat/utils/attachment";
+
+function previewText(raw: string): string {
+  const { attachment, text } = parseMessageText(raw);
+  if (!attachment) return raw;
+  const label =
+    attachment.kind === "image"
+      ? "📷 Photo"
+      : attachment.kind === "video"
+        ? "🎬 Video"
+        : `📎 ${attachment.name}`;
+  return text.trim() ? `${label} ${text.trim()}` : label;
+}
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -27,7 +40,7 @@ function ConversationItemBase({
   const last = conversation.lastMessage;
 
   const preview = last
-    ? `${last.sender === currentUserId ? "You: " : ""}${last.text}`
+    ? `${last.sender === currentUserId ? "You: " : ""}${previewText(last.text)}`
     : isGroup
       ? "No messages yet"
       : "Say hello 👋";

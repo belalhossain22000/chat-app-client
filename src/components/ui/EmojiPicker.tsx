@@ -1,29 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { cn } from "@/utils/cn";
+import dynamic from "next/dynamic";
+import { EmojiStyle, Theme } from "emoji-picker-react";
 
-const GROUPS: { label: string; emojis: string[] }[] = [
-  {
-    label: "Smileys",
-    emojis: [
-      "😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😎", "🤔", "😅",
-      "😉", "🙂", "😇", "🥳", "😴", "😢", "😭", "😤", "😳", "🤯",
-    ],
-  },
-  {
-    label: "Gestures",
-    emojis: ["👍", "👎", "👏", "🙌", "🙏", "👌", "🤝", "💪", "👋", "🤙"],
-  },
-  {
-    label: "Hearts & symbols",
-    emojis: ["❤️", "🔥", "✨", "⭐", "🎉", "🚀", "💯", "✅", "❌", "⚡"],
-  },
-  {
-    label: "Objects",
-    emojis: ["📌", "📎", "📝", "📷", "🎁", "☕", "🍕", "🎯", "💡", "📅"],
-  },
-];
+// Lazy-load the picker bundle only when it's first opened.
+const Picker = dynamic(() => import("emoji-picker-react"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-72 w-full items-center justify-center rounded-xl border border-line bg-surface text-xs text-ink-muted">
+      Loading…
+    </div>
+  ),
+});
 
 interface EmojiPickerProps {
   onPick: (emoji: string) => void;
@@ -36,14 +25,14 @@ interface EmojiPickerProps {
 
 export function EmojiPicker({ onPick, trigger }: EmojiPickerProps) {
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
     const onPointer = (e: MouseEvent) => {
       if (
-        !rootRef.current?.contains(e.target as Node) &&
+        !popRef.current?.contains(e.target as Node) &&
         !triggerRef.current?.contains(e.target as Node)
       ) {
         setOpen(false);
@@ -61,7 +50,7 @@ export function EmojiPicker({ onPick, trigger }: EmojiPickerProps) {
   }, [open]);
 
   return (
-    <div className="relative">
+    <>
       {trigger({
         open,
         toggle: () => setOpen((v) => !v),
@@ -71,36 +60,40 @@ export function EmojiPicker({ onPick, trigger }: EmojiPickerProps) {
       })}
 
       {open && (
-        <div
-          ref={rootRef}
-          role="dialog"
-          aria-label="Emoji picker"
-          className="absolute bottom-full right-0 z-50 mb-2 max-h-64 w-64 overflow-y-auto rounded-xl border border-line bg-surface p-2 shadow-xl"
-        >
-          {GROUPS.map((group) => (
-            <div key={group.label} className="mb-1.5 last:mb-0">
-              <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
-                {group.label}
-              </p>
-              <div className="grid grid-cols-8 gap-0.5">
-                {group.emojis.map((e) => (
-                  <button
-                    key={e}
-                    type="button"
-                    onClick={() => onPick(e)}
-                    className={cn(
-                      "flex size-7 items-center justify-center rounded-md text-lg",
-                      "transition-colors hover:bg-surface-muted",
-                    )}
-                  >
-                    {e}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        <>
+          {/* mobile: dim backdrop */}
+          <div
+            aria-hidden
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-40 bg-ink/20 sm:hidden"
+          />
+
+          <div
+            ref={popRef}
+            role="dialog"
+            aria-label="Emoji picker"
+            className={[
+              "z-50 [&_.EmojiPickerReact]:!border-line [&_.EmojiPickerReact]:!shadow-xl",
+              // mobile: fixed sheet pinned above the composer, full-ish width
+              "fixed inset-x-2 bottom-20 [&_.EmojiPickerReact]:!w-full",
+              // desktop: popover anchored to the trigger
+              "sm:absolute sm:inset-x-auto sm:bottom-full sm:right-0 sm:mb-2 sm:w-[320px]",
+            ].join(" ")}
+          >
+            <Picker
+              onEmojiClick={(data) => onPick(data.emoji)}
+              theme={Theme.LIGHT}
+              emojiStyle={EmojiStyle.NATIVE}
+              lazyLoadEmojis
+              skinTonesDisabled
+              searchPlaceholder="Search emoji"
+              width="100%"
+              height={360}
+              previewConfig={{ showPreview: false }}
+            />
+          </div>
+        </>
       )}
-    </div>
+    </>
   );
 }

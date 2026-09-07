@@ -16,6 +16,7 @@ import { MiniMarkdown } from "@/components/ui/MiniMarkdown";
 import { useChatAssist, type AssistMode } from "@/features/chat/hooks/useChatAssist";
 import type { ChatMessage } from "@/features/chat/types/message.types";
 import type { Conversation } from "@/features/chat/types/conversation.types";
+import { attachmentSummary } from "@/features/chat/utils/attachment";
 
 interface ChatAssistPanelProps {
   open: boolean;
@@ -50,7 +51,7 @@ export function ChatAssistPanel({
       .filter((m) => m.status !== "failed")
       .map((m) => ({
         sender: m.senderId === currentUserId ? "You" : names.get(m.senderId) ?? "Member",
-        text: m.text,
+        text: attachmentSummary(m.text),
       }));
   }, [messages, conversation.participants, currentUserId]);
 

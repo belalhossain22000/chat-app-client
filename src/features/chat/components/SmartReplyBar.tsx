@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Sparkles, X } from "lucide-react";
 import type { ChatMessage } from "@/features/chat/types/message.types";
 import type { Conversation } from "@/features/chat/types/conversation.types";
+import { attachmentSummary } from "@/features/chat/utils/attachment";
 
 interface SmartReplyBarProps {
   conversation: Conversation;
@@ -44,7 +45,7 @@ export function SmartReplyBar({
       .map((m) => ({
         sender:
           m.senderId === currentUserId ? "You" : names.get(m.senderId) ?? "Member",
-        text: m.text,
+        text: attachmentSummary(m.text),
       }));
 
     const controller = new AbortController();
