@@ -10,9 +10,13 @@ page that showcases it.
 
 | | |
 | --- | --- |
-| **Live — Chat app** | _add your Vercel URL_ `/chat` |
-| **Live — Landing page** | _add your Vercel URL_ `/` |
+| **Live — Chat app** | https://chat-app-drab-gamma-d00w5ysmtq.vercel.app/chat |
+| **Live — Landing page** | https://chat-app-drab-gamma-d00w5ysmtq.vercel.app/ |
 | **Repository** | https://github.com/belalhossain22000/chat-app-client |
+
+> The chat backend runs on Render's free tier, which sleeps after ~15 minutes
+> idle. The first request to a cold instance takes 30-50s (skeletons cover the
+> wait); everything after it is immediate.
 
 ---
 
