@@ -72,7 +72,7 @@ export function Hero() {
             height={1024}
             priority
             sizes="(min-width: 1024px) 60vw, 100vw"
-            className="h-auto w-full"
+            className="h-auto w-full motion-safe:animate-[float_6s_ease-in-out_infinite]"
           />
         </div>
       </div>

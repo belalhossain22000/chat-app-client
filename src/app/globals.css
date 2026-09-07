@@ -31,6 +31,28 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* offset in-page anchors so they clear the sticky header
+   (used as a fallback when Lenis / smooth JS scroll isn't active) */
+:where(section[id]) {
+  scroll-margin-top: 5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 body {
   background: var(--color-background);
   color: var(--color-ink);
