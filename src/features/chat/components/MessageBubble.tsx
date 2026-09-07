@@ -36,7 +36,7 @@ function MessageBubbleBase({
         </div>
       )}
 
-      <div className={cn("flex max-w-[75%] flex-col", mine ? "items-end" : "items-start")}>
+      <div className={cn("flex max-w-[80%] flex-col", mine ? "items-end" : "items-start")}>
         {!mine && isGroup && showName && senderName && (
           <span className="mb-1 px-1 text-xs font-medium text-ink-muted">
             {senderName}

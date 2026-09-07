@@ -12,10 +12,7 @@ import { useLoginMutation } from "@/features/auth/api/auth.api";
 import { setCredentials } from "@/features/auth/slice/auth.slice";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { parseApiError } from "@/lib/api/parseApiError";
-
-function digitsOnly(value: string): string {
-  return value.replace(/\D/g, "");
-}
+import { composePhone, isValidPhoneInput } from "@/features/auth/phone";
 
 export function LoginForm() {
   const router = useRouter();
@@ -28,7 +25,7 @@ export function LoginForm() {
   const [name, setName] = useState("");
   const [touched, setTouched] = useState(false);
 
-  const phoneValid = digitsOnly(phone).length >= 6;
+  const phoneValid = isValidPhoneInput(phone);
   const nameValid = name.trim().length >= 2;
   const canSubmit = phoneValid && nameValid && !isLoading;
 
@@ -39,7 +36,7 @@ export function LoginForm() {
 
     try {
       const result = await login({
-        phone: `${dialCode}${digitsOnly(phone)}`,
+        phone: composePhone(dialCode, phone),
         name: name.trim(),
       }).unwrap();
       dispatch(setCredentials({ token: result.token, user: result.user }));

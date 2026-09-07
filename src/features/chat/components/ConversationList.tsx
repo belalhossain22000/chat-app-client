@@ -44,10 +44,16 @@ export function ConversationList({ search, onNewConversation }: ConversationList
 
   const handleSelect = useCallback(
     (id: string) => {
+      // click the open conversation again -> close it
+      if (id === activeId) {
+        dispatch(setActiveConversation(null));
+        router.push("/chat");
+        return;
+      }
       dispatch(setActiveConversation(id));
       router.push(`/chat/${id}`);
     },
-    [dispatch, router],
+    [dispatch, router, activeId],
   );
 
   if (isLoading) return <ConversationListSkeleton />;

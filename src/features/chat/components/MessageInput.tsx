@@ -49,7 +49,7 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
       onSubmit={handleSubmit}
       className="border-t border-line bg-surface px-3 py-3 sm:px-4"
     >
-      <div className="flex items-end gap-2 rounded-2xl border border-line bg-surface-muted px-3 py-2 focus-within:ring-2 focus-within:ring-accent">
+      <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-2xl border border-line bg-surface-muted px-3 py-2 focus-within:ring-2 focus-within:ring-accent">
         <button
           type="button"
           aria-label="Attach file"

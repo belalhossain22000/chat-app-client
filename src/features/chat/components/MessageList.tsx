@@ -76,6 +76,7 @@ export function MessageList({
         onScroll={onScroll}
         className="h-full overflow-y-auto px-3 py-4 sm:px-6"
       >
+        <div className="mx-auto flex max-w-3xl flex-col gap-4">
         {isLoadingMore && (
           <div className="flex justify-center pb-3">
             <Skeleton rounded="full" className="h-6 w-28" />
@@ -87,7 +88,6 @@ export function MessageList({
           </div>
         )}
 
-        <div className="flex flex-col gap-4">
           {days.map((day) => (
             <div key={day.key} className="flex flex-col gap-2">
               <div className="my-2 flex justify-center">
@@ -112,8 +112,8 @@ export function MessageList({
               })}
             </div>
           ))}
+          <div ref={bottomRef} />
         </div>
-        <div ref={bottomRef} />
       </div>
 
       {newCount > 0 && (

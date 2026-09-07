@@ -4,12 +4,13 @@ import type {
   ConversationFilter,
   SocketStatus,
 } from "@/features/chat/types/chat.types";
+import { setDetailsPanelOpenStored } from "@/features/chat/detailsPanelStorage";
 
 const initialState: ChatUiState = {
   activeConversationId: null,
   socketStatus: "disconnected",
   unreadByConversationId: {},
-  isDetailsPanelOpen: true,
+  isDetailsPanelOpen: false,
   conversationFilter: "all",
 };
 
@@ -32,11 +33,16 @@ const chatSlice = createSlice({
     clearUnread(state, action: PayloadAction<string>) {
       delete state.unreadByConversationId[action.payload];
     },
+    hydrateDetailsPanel(state, action: PayloadAction<boolean>) {
+      state.isDetailsPanelOpen = action.payload;
+    },
     setDetailsPanelOpen(state, action: PayloadAction<boolean>) {
       state.isDetailsPanelOpen = action.payload;
+      setDetailsPanelOpenStored(action.payload);
     },
     toggleDetailsPanel(state) {
       state.isDetailsPanelOpen = !state.isDetailsPanelOpen;
+      setDetailsPanelOpenStored(state.isDetailsPanelOpen);
     },
     setConversationFilter(state, action: PayloadAction<ConversationFilter>) {
       state.conversationFilter = action.payload;
@@ -49,6 +55,7 @@ export const {
   setSocketStatus,
   incrementUnread,
   clearUnread,
+  hydrateDetailsPanel,
   setDetailsPanelOpen,
   toggleDetailsPanel,
   setConversationFilter,

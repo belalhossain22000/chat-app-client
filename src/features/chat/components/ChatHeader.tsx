@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { IconButton } from "@/components/ui/IconButton";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
-import { toggleDetailsPanel } from "@/features/chat/slice/chat.slice";
+import {
+  toggleDetailsPanel,
+  setActiveConversation,
+} from "@/features/chat/slice/chat.slice";
 import type { Conversation } from "@/features/chat/types/conversation.types";
 import { conversationTitle } from "@/features/chat/utils/normalizeConversation";
 
@@ -25,14 +28,14 @@ export function ChatHeader({ conversation, currentUserId }: ChatHeaderProps) {
     ? `${conversation.participants.length} members`
     : conversation.participants.find((p) => p.id !== currentUserId)?.phone ?? "";
 
+  function close() {
+    dispatch(setActiveConversation(null));
+    router.push("/chat");
+  }
+
   return (
     <header className="flex items-center gap-3 border-b border-line bg-surface px-3 py-3 sm:px-4">
-      <IconButton
-        label="Back to conversations"
-        size="sm"
-        className="md:hidden"
-        onClick={() => router.push("/chat")}
-      >
+      <IconButton label="Back to conversations" size="sm" onClick={close}>
         <ArrowLeft className="size-5" />
       </IconButton>
 

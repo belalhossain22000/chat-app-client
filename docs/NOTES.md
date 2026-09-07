@@ -73,7 +73,28 @@ brings nothing new.
 messages to be non-sendable, so the guard is enforced on the client
 (`MessageInput` trims before enabling Send).
 
-### 1.7 No documented error shape
+### 1.7 `/users/search` treats `q` as a raw regex
+
+Passing a query with a regex metacharacter (`+`, `(`, `[`, `*`…) returns a
+`500`: `Regular expression is invalid: quantifier does not follow a repeatable
+item`. Typing a phone number with a `+` (which the phone field produces) broke
+search entirely. The query is also **case-sensitive** (`ada`, `Ada`, `ADA` each return different
+results) and appears prefix-anchored (a mid-string fragment of a phone number
+doesn't match).
+
+Fixed client-side in `users.api.ts` (`toSearchRegex`): escape regex
+metacharacters, then prefix `(?i)` so the backend's regex match is
+case-insensitive. The prefix-anchoring can't be worked around from the client.
+
+### 1.8b Phone numbers aren't normalised → duplicate accounts
+
+`POST /auth/login` stores whatever string it's given. `01940075782` and
+`+8801940075782` are treated as two different users. The login form's
+`composePhone` now only prepends the dial code when the user hasn't already
+typed a `+`, `00`, or a leading `0`, so a full local/international number is
+sent as-is.
+
+### 1.7b No documented error shape
 
 Errors come back as `{ error: { message, code, details? } }` but this isn't in
 the spec. `src/lib/api/parseApiError.ts` checks `message` / `error` / `detail`

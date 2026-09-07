@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { ChatScreen } from "@/features/chat/components/ChatScreen";
 
 export const metadata: Metadata = {
   title: "Chat",
 };
 
+// UI is rendered by chat/layout.tsx (ChatScreen). This page is just the route.
 export default function ChatPage() {
-  return <ChatScreen />;
+  return null;
 }

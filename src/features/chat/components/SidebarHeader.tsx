@@ -25,12 +25,17 @@ export function SidebarHeader({
         <Image src="/logo.png" alt="ChatFlow" width={240} height={80} priority className="h-16 w-auto" />
       </Link>
 
-      <div className="flex gap-2">
-        <Button size="sm" className="flex-1" onClick={onNewConversation}>
+      <div className="grid grid-cols-2 gap-2">
+        <Button size="sm" onClick={onNewConversation}>
           <Plus className="size-4" />
           New conversation
         </Button>
-        <Button size="sm" variant="secondary" onClick={onCreateGroup}>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="border-accent text-accent hover:bg-tint-coral/40"
+          onClick={onCreateGroup}
+        >
           <Users className="size-4" />
           Create group
         </Button>
