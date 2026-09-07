@@ -1,7 +1,8 @@
 import type { ISODateString } from "@/types/common.types";
 import type { User } from "./user.types";
 
-export type ConversationType = "one-to-one" | "group";
+// Live API type is "direct" | "group" (docs say "one-to-one").
+export type ConversationType = "direct" | "group";
 
 export interface ConversationLastMessage {
   text: string;
@@ -9,26 +10,37 @@ export interface ConversationLastMessage {
   createdAt: ISODateString;
 }
 
-export interface ConversationRestDto {
+// Raw list item from GET /conversations (after _id -> id).
+// direct: { participant } (the OTHER user). group: { participants, name, admins, createdBy }.
+export interface ConversationListItemDto {
   id: string;
-  type?: ConversationType;
+  type: ConversationType;
+  updatedAt: ISODateString;
+  lastMessage?: ConversationLastMessage | Record<string, never>;
+  participant?: User;
+  participants?: User[];
   name?: string;
-  lastMessage?: ConversationLastMessage;
-  updatedAt?: ISODateString;
-  createdAt?: ISODateString;
   createdBy?: string;
   admins?: string[];
-  participants: Array<User | string>;
 }
 
+// Raw from POST /conversations (1:1 create): participants as id strings, no type.
+export interface CreatedDirectDto {
+  id: string;
+  participants: string[];
+  createdAt: ISODateString;
+}
+
+// Normalised shape the UI renders.
 export interface Conversation {
   id: string;
   type: ConversationType;
-  name?: string;
+  name?: string; // group only
   lastMessage?: ConversationLastMessage;
   updatedAt: ISODateString;
   createdBy?: string;
   admins: string[];
+  // direct: [the other user]. group: everyone.
   participants: User[];
 }
 
