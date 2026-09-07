@@ -2,7 +2,7 @@
 
 The Messages API provides functionality for sending and retrieving messages in direct and group conversations.
 
-Real-time message delivery is handled via WebSockets (`message:created`), while message creation and historical retrieval are handled via REST endpoints.
+Real-time message delivery is handled via WebSockets (`message:new`), while message creation and historical retrieval are handled via REST endpoints.
 
 ---
 
@@ -207,10 +207,10 @@ In distributed or flaky network environments, duplicate messages can occur due t
 ### Frontend Deduplication Strategy
 
 1. **By Server `id`**:
-   Maintain a Set or dictionary keyed by `id`. When receiving messages via `GET /messages` or `message:created` socket event, discard if `message.id` already exists in state.
+   Maintain a Set or dictionary keyed by `id`. When receiving messages via `GET /messages` or `message:new` socket event, discard if `message.id` already exists in state.
 
 2. **Reconciling Optimistic Messages**:
-   When the server emits `message:created` or returns `POST /messages`:
+   When the server emits `message:new` or returns `POST /messages`:
    - If the message was sent by the current user, replace the pending message (matching by local `tempId` or matching conversation + sender + timestamp + content) instead of appending a duplicate bubble.
 
 ```typescript
@@ -233,7 +233,7 @@ if (existingIndex !== -1) {
 When any user sends a message, the server broadcasts a WebSocket event to all conversation participants:
 
 ```text
-Event: message:created
+Event: message:new
 Payload: Full Message Object
 ```
 
@@ -247,6 +247,6 @@ Detailed WebSocket event listeners and connection lifecycle are documented in:
 
 * All message endpoints require JWT Bearer authentication.
 * Only active conversation members can send or read messages.
-* Text messages are delivered instantly via WebSocket (`message:created`) and saved permanently via REST.
+* Text messages are delivered instantly via WebSocket (`message:new`) and saved permanently via REST.
 * Client-side optimistic rendering prevents UI lag during network latency.
 * Deduplication by message ID is required to prevent duplicate renders during socket broadcast reconciliation.
