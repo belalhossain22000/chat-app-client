@@ -79,7 +79,20 @@ Errors come back as `{ error: { message, code, details? } }` but this isn't in
 the spec. `src/lib/api/parseApiError.ts` checks `message` / `error` / `detail`
 and falls back to HTTP-status text.
 
-### 1.8 New phone auto-registers on login
+### 1.8 Socket `message:new` shape & double-delivery
+
+The socket payload is `{ id, conversation, sender, text, createdAt }` — `id`
+(not `_id`), the key is `conversation` (not `conversationId`), and `createdAt`
+is **epoch milliseconds**, not an ISO string. `socketMessageToChat` normalises
+all three.
+
+The **sender receives their own `message:new`**, and a REST `POST /messages`
+*also* fans out a `message:new` to every participant. So the client sends via
+REST only (optimistic insert → reconcile with the response) and treats every
+socket `message:new` as an echo that's deduped by `id`. Emitting
+`message:send` in addition would double-post.
+
+### 1.9 New phone auto-registers on login
 
 `POST /auth/login` with an unknown phone silently creates the account and
 returns `200` (not `201`). Matches the brief; noted for completeness.

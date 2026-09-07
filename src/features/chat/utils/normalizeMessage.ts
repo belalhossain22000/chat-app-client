@@ -1,8 +1,4 @@
-import type {
-  ChatMessage,
-  MessageDto,
-  MessageSocketDto,
-} from "@/features/chat/types/message.types";
+import type { ChatMessage, MessageDto } from "@/features/chat/types/message.types";
 
 export function normalizeMessage(dto: MessageDto): ChatMessage {
   return {
@@ -15,14 +11,25 @@ export function normalizeMessage(dto: MessageDto): ChatMessage {
   };
 }
 
-export function socketMessageToChat(dto: MessageSocketDto): ChatMessage {
+// `message:new` payload: `conversation` (not `conversationId`), `createdAt`
+// may be epoch ms.
+export function socketMessageToChat(evt: {
+  id: string;
+  conversation: string;
+  sender: string;
+  text: string;
+  createdAt: number | string;
+}): ChatMessage {
   return {
-    id: dto.id,
-    conversationId: dto.conversationId,
-    senderId: dto.sender,
-    text: dto.text,
+    id: evt.id,
+    conversationId: evt.conversation,
+    senderId: evt.sender,
+    text: evt.text,
     status: "sent",
-    createdAt: dto.createdAt,
+    createdAt:
+      typeof evt.createdAt === "number"
+        ? new Date(evt.createdAt).toISOString()
+        : evt.createdAt,
   };
 }
 

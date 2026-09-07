@@ -10,22 +10,26 @@ import {
   DropdownSeparator,
 } from "@/components/ui/Dropdown";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useAppDispatch } from "@/lib/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { logout } from "@/features/auth/slice/auth.slice";
+import { disconnectSocket } from "@/features/chat/socket/socket.client";
 import { useAvatarPreset } from "@/features/profile/useAvatarPreset";
 import { AVATAR_SWATCH } from "@/features/profile/avatarStorage";
 import { ProfileModal } from "@/features/profile/components/ProfileModal";
+import { SocketStatusDot } from "./SocketStatusDot";
 
 export function SidebarUserFooter() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAuth();
   const preset = useAvatarPreset();
+  const socketStatus = useAppSelector((s) => s.chat.socketStatus);
   const [profileOpen, setProfileOpen] = useState(false);
 
   const avatarColor = preset ? AVATAR_SWATCH[preset] : undefined;
 
   function handleLogout() {
+    disconnectSocket();
     dispatch(logout());
     router.replace("/login");
   }
@@ -38,7 +42,7 @@ export function SidebarUserFooter() {
           <p className="truncate text-sm font-semibold text-ink">
             {user?.name ?? "—"}
           </p>
-          <p className="truncate text-xs text-success-ink">Online</p>
+          <SocketStatusDot status={socketStatus} />
         </div>
 
         <Dropdown

@@ -1,5 +1,4 @@
 import type { ISODateString } from "@/types/common.types";
-import type { User } from "./user.types";
 
 export type MessageStatus = "sending" | "sent" | "failed";
 
@@ -16,15 +15,6 @@ export interface MessageDto {
 export interface MessageHistoryResponse {
   messages: MessageDto[]; // newest first
   hasMore: boolean;
-}
-
-// message:new socket event
-export interface MessageSocketDto {
-  id: string;
-  conversationId: string;
-  sender: string;
-  text: string;
-  createdAt: ISODateString;
 }
 
 // Normalised shape the UI renders (oldest -> newest). Dedupe by id.
@@ -44,18 +34,8 @@ export interface SendMessageRequest {
   text: string;
 }
 
-// message:send socket event
-export interface SendMessageSocketPayload {
-  conversationId: string;
-  text: string;
-}
-
 export interface MessagesPage {
   messages: ChatMessage[]; // oldest -> newest
   hasMore: boolean;
-  // cursor for the next (older) page = oldest message's createdAt
-  nextCursor: string | null;
+  nextCursor: string | null; // oldest message id, for the next `before` page
 }
-
-// Sender details resolved from the conversation participants.
-export type SenderLookup = (senderId: string) => User | undefined;
