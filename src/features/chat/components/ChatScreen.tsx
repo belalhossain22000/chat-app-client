@@ -4,22 +4,25 @@ import { useEffect, useState } from "react";
 import { SidebarPanel, ConversationPanel } from "@/components/layout/AppShell";
 import { ChatSidebar } from "./ChatSidebar";
 import { ChatWindowEmpty } from "./ChatWindowEmpty";
+import { NewChatModal } from "./NewChatModal";
+import { CreateGroupModal } from "./CreateGroupModal";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { setActiveConversation } from "@/features/chat/slice/chat.slice";
 
-// Modals (new conversation / create group) land in a later phase.
+type ModalKind = null | "new" | "group";
+
 export function ChatScreen({ conversationId }: { conversationId?: string }) {
   const dispatch = useAppDispatch();
   const activeId = useAppSelector((s) => s.chat.activeConversationId);
-  const [, setModal] = useState<null | "new" | "group">(null);
+  const [modal, setModal] = useState<ModalKind>(null);
 
-  // keep slice in sync with the route
   useEffect(() => {
     dispatch(setActiveConversation(conversationId ?? null));
   }, [conversationId, dispatch]);
 
   const openNew = () => setModal("new");
   const openGroup = () => setModal("group");
+  const closeModal = () => setModal(null);
 
   const showConversation = Boolean(conversationId ?? activeId);
 
@@ -38,6 +41,9 @@ export function ChatScreen({ conversationId }: { conversationId?: string }) {
           <ChatWindowEmpty onNewConversation={openNew} onCreateGroup={openGroup} />
         )}
       </ConversationPanel>
+
+      <NewChatModal open={modal === "new"} onClose={closeModal} />
+      <CreateGroupModal open={modal === "group"} onClose={closeModal} />
     </>
   );
 }
