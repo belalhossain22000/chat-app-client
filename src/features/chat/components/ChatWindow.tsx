@@ -25,6 +25,8 @@ import { setDetailsPanelOpen } from "@/features/chat/slice/chat.slice";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { ChatMessage } from "@/features/chat/types/message.types";
 
+const EMPTY_MESSAGES: ChatMessage[] = [];
+
 export function ChatWindow({ conversationId }: { conversationId: string }) {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
@@ -47,36 +49,39 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
   const [sendMessage] = useSendMessageMutation();
 
   const hasMore = Boolean(data?.hasMore);
+  const nextCursor = data?.nextCursor;
+  const messages = data?.messages ?? EMPTY_MESSAGES;
+  const userId = user?.id;
 
   const loadOlder = useCallback(() => {
-    if (!data?.nextCursor || isLoadingMore || !hasMore) return;
-    fetchOlder({ conversationId, before: data.nextCursor });
-  }, [conversationId, data?.nextCursor, isLoadingMore, hasMore, fetchOlder]);
+    if (!nextCursor || isLoadingMore || !hasMore) return;
+    fetchOlder({ conversationId, before: nextCursor });
+  }, [conversationId, nextCursor, isLoadingMore, hasMore, fetchOlder]);
 
   const send = useCallback(
     (text: string) => {
-      if (!user?.id) return;
+      if (!userId) return;
       sendMessage({
         conversationId,
         text,
-        senderId: user.id,
+        senderId: userId,
         tempId: crypto.randomUUID(),
       });
     },
-    [conversationId, user?.id, sendMessage],
+    [conversationId, userId, sendMessage],
   );
 
   const retry = useCallback(
     (message: ChatMessage) => {
-      if (!user?.id) return;
+      if (!userId) return;
       sendMessage({
         conversationId,
         text: message.text,
-        senderId: user.id,
+        senderId: userId,
         tempId: message.tempId ?? crypto.randomUUID(),
       });
     },
-    [conversationId, user?.id, sendMessage],
+    [conversationId, userId, sendMessage],
   );
 
   if (!conversation) {
@@ -90,9 +95,9 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
 
   const detailsContent =
     conversation.type === "group" ? (
-      <GroupManagement conversation={conversation} currentUserId={user?.id} />
+      <GroupManagement conversation={conversation} currentUserId={userId} />
     ) : (
-      <ChatDetailsPanel conversation={conversation} currentUserId={user?.id} />
+      <ChatDetailsPanel conversation={conversation} currentUserId={userId} />
     );
 
   return (
@@ -100,7 +105,7 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
       <div className="flex min-w-0 flex-1 flex-col bg-background">
         <ChatHeader
           conversation={conversation}
-          currentUserId={user?.id}
+          currentUserId={userId}
           onOpenAssistant={() => setAssistOpen(true)}
         />
 
@@ -128,9 +133,9 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
             />
           ) : (
             <MessageList
-              messages={data?.messages ?? []}
+              messages={messages}
               conversation={conversation}
-              currentUserId={user?.id}
+              currentUserId={userId}
               isLoading={isLoading}
               hasMore={hasMore}
               isLoadingMore={isLoadingMore}
@@ -142,8 +147,8 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
 
         <SmartReplyBar
           conversation={conversation}
-          messages={data?.messages ?? []}
-          currentUserId={user?.id}
+          messages={messages}
+          currentUserId={userId}
           onSend={send}
         />
 
@@ -157,8 +162,8 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
           open={assistOpen}
           onClose={() => setAssistOpen(false)}
           conversation={conversation}
-          messages={data?.messages ?? []}
-          currentUserId={user?.id}
+          messages={messages}
+          currentUserId={userId}
           onUseDraft={(text) => inputRef.current?.setText(text)}
         />
       </div>

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Mouse/trackpad pointers don't need the enlarged touch hit-areas. */
+@custom-variant pointer-fine (@media (pointer: fine));
+
 /*
   Central color palette. Use the Tailwind tokens (bg-background, text-ink,
   bg-accent, border-line, ...) everywhere. Never hardcode hex in components.

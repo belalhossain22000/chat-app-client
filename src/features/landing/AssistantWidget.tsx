@@ -106,7 +106,7 @@ export function AssistantWidget() {
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0",
         )}
-        style={{ maxHeight: "min(560px, calc(100vh - 8rem))" }}
+        style={{ maxHeight: "min(560px, calc(100dvh - 8rem))" }}
       >
         <div className="flex items-center gap-2 border-b border-line bg-tint-coral/30 px-4 py-3">
           <span className="flex size-8 items-center justify-center rounded-lg bg-accent text-accent-contrast">

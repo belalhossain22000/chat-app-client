@@ -4,7 +4,7 @@ import { TOKEN_COOKIE } from "@/features/auth/authConstants";
 const PROTECTED = ["/chat"];
 const GUEST_ONLY = ["/login"];
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasToken = Boolean(request.cookies.get(TOKEN_COOKIE)?.value);
 

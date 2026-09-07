@@ -12,7 +12,7 @@ page that showcases it.
 | --- | --- |
 | **Live — Chat app** | _add your Vercel URL_ `/chat` |
 | **Live — Landing page** | _add your Vercel URL_ `/` |
-| **Repository** | _add your GitHub URL_ |
+| **Repository** | https://github.com/belalhossain22000/chat-app-client |
 
 ---
 
@@ -101,7 +101,7 @@ src/
 │   ├── env.ts               # typed, fail-fast env access
 │   ├── gemini.ts            # shared server-side Gemini caller
 │   └── spaces.ts            # DigitalOcean Spaces (S3) client
-├── middleware.ts            # edge auth gate for /chat
+├── proxy.ts                 # edge auth gate for /chat (Next 16 proxy convention)
 └── types/                   # shared types
 
 docs/
@@ -166,7 +166,7 @@ and re-orders the conversation list; `conversation:updated` invalidates the list
 Listeners are cleaned up on unmount; the socket is disconnected on logout.
 
 **Auth.** The JWT lives in `localStorage` (the socket handshake needs it in JS)
-and is mirrored to a non-httpOnly cookie so `middleware.ts` can gate `/chat` at
+and is mirrored to a non-httpOnly cookie so `proxy.ts` can gate `/chat` at
 the edge. `AuthGate` is the client-side backstop for cookie-disabled cases and
 token expiry — it runs `/auth/me` to validate the session and shows the shell
 skeleton meanwhile. A `401` from any request tears the session down centrally

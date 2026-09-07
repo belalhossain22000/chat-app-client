@@ -6,6 +6,13 @@ import type { ChatMessage } from "@/features/chat/types/message.types";
 import type { Conversation } from "@/features/chat/types/conversation.types";
 import { attachmentSummary } from "@/features/chat/utils/attachment";
 
+const EMPTY: string[] = [];
+
+interface RepliesState {
+  trigger: string | null;
+  items: string[];
+}
+
 interface SmartReplyBarProps {
   conversation: Conversation;
   messages: ChatMessage[];
@@ -22,7 +29,7 @@ export function SmartReplyBar({
   currentUserId,
   onSend,
 }: SmartReplyBarProps) {
-  const [replies, setReplies] = useState<string[]>([]);
+  const [replies, setReplies] = useState<RepliesState>({ trigger: null, items: EMPTY });
   const [dismissedFor, setDismissedFor] = useState<string | null>(null);
   const fetchedFor = useRef<string | null>(null);
 
@@ -30,13 +37,16 @@ export function SmartReplyBar({
   const trigger =
     last && last.senderId !== currentUserId ? last.id || last.tempId || null : null;
 
+  // Suggestions belong to the message that produced them; a different trigger
+  // makes the stored ones stale without needing an extra render to clear them.
+  const visibleReplies = replies.trigger === trigger ? replies.items : EMPTY;
+
   useEffect(() => {
     if (!trigger || trigger === fetchedFor.current || trigger === dismissedFor) {
-      if (!trigger) setReplies([]);
       return;
     }
     fetchedFor.current = trigger;
-    setReplies([]);
+    const currentTrigger = trigger;
 
     const names = new Map(conversation.participants.map((p) => [p.id, p.name]));
     const transcript = messages
@@ -57,22 +67,24 @@ export function SmartReplyBar({
     })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (data?.replies?.length) setReplies(data.replies);
+        if (data?.replies?.length) {
+          setReplies({ trigger: currentTrigger, items: data.replies });
+        }
       })
       .catch(() => {});
 
     return () => controller.abort();
   }, [trigger, dismissedFor, messages, conversation.participants, currentUserId]);
 
-  if (!trigger || trigger === dismissedFor || replies.length === 0) return null;
+  if (!trigger || trigger === dismissedFor || visibleReplies.length === 0) return null;
 
   return (
     <div className="border-t border-line bg-surface px-3 pt-2 sm:px-4">
       <div className="mx-auto flex max-w-3xl items-center gap-2 overflow-x-auto pb-1">
         <Sparkles className="size-3.5 shrink-0 text-accent" />
-        {replies.map((r, i) => (
+        {visibleReplies.map((r) => (
           <button
-            key={i}
+            key={r}
             type="button"
             onClick={() => {
               setDismissedFor(trigger);

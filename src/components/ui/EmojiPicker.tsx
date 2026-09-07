@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { EmojiStyle, Theme } from "emoji-picker-react";
 
@@ -16,17 +16,24 @@ const Picker = dynamic(() => import("emoji-picker-react"), {
 
 interface EmojiPickerProps {
   onPick: (emoji: string) => void;
-  trigger: (props: {
-    open: boolean;
-    toggle: () => void;
-    ref: (el: HTMLButtonElement | null) => void;
-  }) => ReactNode;
+  label?: string;
+  // Rendered inside the trigger button; receives the open state for styling.
+  children: (open: boolean) => ReactNode;
+  triggerClassName?: string | ((open: boolean) => string);
 }
 
-export function EmojiPicker({ onPick, trigger }: EmojiPickerProps) {
+export function EmojiPicker({
+  onPick,
+  label = "Emoji",
+  children,
+  triggerClassName,
+}: EmojiPickerProps) {
   const [open, setOpen] = useState(false);
   const popRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  const toggle = useCallback(() => setOpen((v) => !v), []);
+  const close = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     if (!open) return;
@@ -51,20 +58,27 @@ export function EmojiPicker({ onPick, trigger }: EmojiPickerProps) {
 
   return (
     <>
-      {trigger({
-        open,
-        toggle: () => setOpen((v) => !v),
-        ref: (el) => {
-          triggerRef.current = el;
-        },
-      })}
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-label={label}
+        aria-expanded={open}
+        onClick={toggle}
+        className={
+          typeof triggerClassName === "function"
+            ? triggerClassName(open)
+            : triggerClassName
+        }
+      >
+        {children(open)}
+      </button>
 
       {open && (
         <>
           {/* mobile: dim backdrop */}
           <div
             aria-hidden
-            onClick={() => setOpen(false)}
+            onClick={close}
             className="fixed inset-0 z-40 bg-ink/20 sm:hidden"
           />
 

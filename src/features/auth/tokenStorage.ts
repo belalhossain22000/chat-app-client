@@ -4,7 +4,7 @@ import {
   TOKEN_COOKIE_MAX_AGE,
 } from "@/features/auth/authConstants";
 
-// Token is mirrored to a cookie so middleware.ts can gate routes at the edge.
+// Token is mirrored to a cookie so proxy.ts can gate routes at the edge.
 // Not httpOnly by design: the client needs the token for the socket handshake.
 
 function writeCookie(token: string): void {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Check, SearchX } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Avatar } from "@/components/ui/Avatar";
@@ -26,7 +27,10 @@ export function UserSearchList({
   const debounced = useDebouncedValue(query.trim(), 300);
   const { data, isFetching, isError } = useSearchUsersQuery(debounced);
 
-  const users = (data ?? []).filter((u) => !excludeIds?.has(u.id));
+  const users = useMemo(
+    () => (data ?? []).filter((u) => !excludeIds?.has(u.id)),
+    [data, excludeIds],
+  );
 
   if (isFetching) return <UserListSkeleton />;
 

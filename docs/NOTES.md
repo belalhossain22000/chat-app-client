@@ -183,7 +183,7 @@ navigation (`max-md:hidden` toggle on the two panels).
 ### 3.6 Edge middleware + client guard
 
 JWT lives in `localStorage` (needed for the socket handshake) and is mirrored
-to a non-httpOnly cookie so `middleware.ts` can gate `/chat` at the edge.
+to a non-httpOnly cookie so `proxy.ts` can gate `/chat` at the edge.
 `AuthGate` is the client-side backstop (cookie disabled, token expiry) and runs
 `/auth/me` to validate the session, showing the shell skeleton meanwhile.
 

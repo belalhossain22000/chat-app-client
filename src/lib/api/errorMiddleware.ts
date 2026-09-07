@@ -19,6 +19,9 @@ export const apiErrorMiddleware: Middleware = (store) => (next) => (action) => {
       store.dispatch(logout());
       store.dispatch(baseApi.util.resetApiState());
       if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+        // Hard navigation on purpose: a full reload guarantees the torn-down
+        // socket, RTK Query cache and auth state can't survive into /login.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.assign("/login");
       }
     } else if (!endpoint || !SILENT_ENDPOINTS.has(endpoint)) {

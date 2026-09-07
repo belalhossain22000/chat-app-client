@@ -163,6 +163,8 @@ export const MessageInput = forwardRef<MessageInputHandle, MessageInputProps>(
       <form
         onSubmit={handleSubmit}
         className="relative border-t border-line bg-surface px-3 py-3 sm:px-4"
+        /* clears the iOS home bar: the tab bar is hidden while a thread is open */
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
       >
         <input
           ref={fileRef}
@@ -312,22 +314,15 @@ export const MessageInput = forwardRef<MessageInputHandle, MessageInputProps>(
 
           <EmojiPicker
             onPick={insertEmoji}
-            trigger={({ open, toggle, ref: triggerRef }) => (
-              <button
-                ref={triggerRef}
-                type="button"
-                aria-label="Emoji"
-                aria-expanded={open}
-                onClick={toggle}
-                className={cn(
-                  "pb-1.5 transition-colors hover:text-ink",
-                  open ? "text-accent" : "text-ink-muted",
-                )}
-              >
-                <Smile className="size-5" />
-              </button>
-            )}
-          />
+            triggerClassName={(open) =>
+              cn(
+                "pb-1.5 transition-colors hover:text-ink",
+                open ? "text-accent" : "text-ink-muted",
+              )
+            }
+          >
+            {() => <Smile className="size-5" />}
+          </EmojiPicker>
 
           {showMic ? (
             <button
