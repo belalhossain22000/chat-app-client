@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/Dropdown";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
-import { logout } from "@/features/auth/slice/auth.slice";
-import { disconnectSocket } from "@/features/chat/socket/socket.client";
+import { performLogout } from "@/features/auth/logout";
 import { useAvatarPreset } from "@/features/profile/useAvatarPreset";
 import { AVATAR_SWATCH } from "@/features/profile/avatarStorage";
 import { ProfileModal } from "@/features/profile/components/ProfileModal";
@@ -29,8 +28,7 @@ export function SidebarUserFooter() {
   const avatarColor = preset ? AVATAR_SWATCH[preset] : undefined;
 
   function handleLogout() {
-    disconnectSocket();
-    dispatch(logout());
+    performLogout(dispatch);
     router.replace("/login");
   }
 
