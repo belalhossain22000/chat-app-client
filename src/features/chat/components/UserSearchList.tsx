@@ -28,14 +28,7 @@ export function UserSearchList({
 
   const users = (data ?? []).filter((u) => !excludeIds?.has(u.id));
 
-  if (isFetching) {
-    return (
-      <div className="flex items-center justify-center gap-2 py-10 text-sm text-ink-muted">
-        <Loader2 className="size-4 animate-spin" />
-        Searching...
-      </div>
-    );
-  }
+  if (isFetching) return <UserListSkeleton />;
 
   if (isError) {
     return (

@@ -1,4 +1,3 @@
-import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 function IncomingRow({ lines = 2 }: { lines?: number }) {
@@ -28,10 +27,7 @@ export function MessageListSkeleton() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex justify-center py-4">
-        <span className="inline-flex items-center gap-2 rounded-full bg-surface-muted px-4 py-1.5 text-sm text-ink-muted">
-          <Loader2 className="size-4 animate-spin" />
-          Loading messages...
-        </span>
+        <Skeleton rounded="full" className="h-7 w-40" />
       </div>
 
       <div className="flex flex-1 flex-col gap-5 px-4 py-2 sm:px-8">

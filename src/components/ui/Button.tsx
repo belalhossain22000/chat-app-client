@@ -1,5 +1,4 @@
 import { forwardRef, type ButtonHTMLAttributes } from "react";
-import { Loader2 } from "lucide-react";
 import { cn } from "@/utils/cn";
 
 type Variant = "primary" | "secondary" | "ghost";
@@ -14,8 +13,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variants: Record<Variant, string> = {
   primary:
     "bg-accent text-accent-contrast hover:bg-accent-hover disabled:hover:bg-accent",
-  secondary:
-    "bg-surface text-ink border border-line hover:bg-surface-muted",
+  secondary: "bg-surface text-ink border border-line hover:bg-surface-muted",
   ghost: "text-ink-muted hover:bg-surface-muted hover:text-ink",
 };
 
@@ -25,6 +23,16 @@ const sizes: Record<Size, string> = {
   lg: "h-13 px-5 text-base gap-2",
 };
 
+function LoadingDots() {
+  return (
+    <span className="inline-flex items-center gap-1" aria-label="Loading">
+      <span className="size-1.5 animate-pulse rounded-full bg-current [animation-delay:-0.3s]" />
+      <span className="size-1.5 animate-pulse rounded-full bg-current [animation-delay:-0.15s]" />
+      <span className="size-1.5 animate-pulse rounded-full bg-current" />
+    </span>
+  );
+}
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { variant = "primary", size = "md", loading = false, disabled, className, children, ...props },
   ref,
@@ -33,6 +41,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     <button
       ref={ref}
       disabled={disabled || loading}
+      aria-busy={loading || undefined}
       className={cn(
         "inline-flex items-center justify-center rounded-xl font-semibold transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -43,8 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       )}
       {...props}
     >
-      {loading && <Loader2 className="size-4 animate-spin" />}
-      {children}
+      {loading ? <LoadingDots /> : children}
     </button>
   );
 });
