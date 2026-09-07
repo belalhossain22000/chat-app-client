@@ -1,26 +1,32 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+  Central color palette. Use the Tailwind tokens (bg-background, text-ink,
+  bg-accent, border-line, ...) everywhere. Never hardcode hex in components.
+*/
+@theme {
+  --color-background: #f7f5f0;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f0eee8;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-ink: #171717;
+  --color-ink-muted: #6b6b66;
+
+  --color-accent: #ff5a4f;
+  --color-accent-hover: #e94b41;
+  --color-accent-contrast: #ffffff;
+
+  --color-success: #b8e6d2;
+  --color-success-ink: #1c5240;
+
+  --color-line: #e7e4dd;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-ink);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
