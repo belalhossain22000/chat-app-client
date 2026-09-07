@@ -66,7 +66,7 @@ Copy `.env.example` to `.env`. The chat feature only needs the first three.
 | --- | --- | --- |
 | `NEXT_PUBLIC_API_URL` | ✅ | REST base, **includes** `/api` |
 | `NEXT_PUBLIC_SOCKET_URL` | ✅ | Socket.IO server, **excludes** `/api` |
-| `NEXT_PUBLIC_SITE_URL` | ✅ | Public origin, used for SEO/OpenGraph metadata |
+| `NEXT_PUBLIC_SITE_URL` | — | Public origin for SEO/OpenGraph metadata. On Vercel it falls back to the deployment's own URL, so it's only needed for a custom domain (or a non-Vercel host). |
 | `GEMINI_API_KEY` | optional | Enables the AI assistant + smart replies (server-only, no `NEXT_PUBLIC_`). Without it those features return a graceful "not configured". |
 | `DO_SPACE_ENDPOINT` | optional | DigitalOcean Spaces endpoint, e.g. `https://sfo3.digitaloceanspaces.com` |
 | `DO_SPACE_ORIGIN_ENDPOINT` | optional | Public/CDN base for uploaded files |
@@ -285,7 +285,10 @@ docs disagree in several places — all verified with live calls:
 1. Push to GitHub, import the repo in Vercel (framework auto-detected as
    Next.js).
 2. Add the environment variables above in **Project → Settings → Environment
-   Variables**. Set `NEXT_PUBLIC_SITE_URL` to the deployed URL.
+   Variables**. Only `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_SOCKET_URL` are
+   required — canonical/OpenGraph URLs resolve from Vercel's own
+   `VERCEL_PROJECT_PRODUCTION_URL`, so `NEXT_PUBLIC_SITE_URL` is only needed to
+   point at a custom domain.
 3. Deploy. The landing page is `/`, the chat app is `/chat`.
 
 **What works on Vercel:** real-time chat is unaffected by Vercel's lack of
