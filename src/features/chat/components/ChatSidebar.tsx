@@ -5,6 +5,7 @@ import { SidebarHeader } from "./SidebarHeader";
 import { ConversationFilters } from "./ConversationFilters";
 import { SidebarUserFooter } from "./SidebarUserFooter";
 import { ConversationList } from "./ConversationList";
+import { InstallPrompt } from "@/features/pwa/components/InstallPrompt";
 import { useAppSelector } from "@/lib/redux/hooks";
 
 interface ChatSidebarProps {
@@ -35,6 +36,9 @@ export function ChatSidebar({ onNewConversation, onCreateGroup }: ChatSidebarPro
       <div className="min-h-0 flex-1 overflow-y-auto pb-16 md:pb-0">
         <ConversationList search={search} onNewConversation={onNewConversation} />
       </div>
+
+      {/* sits above the mobile tab bar, which overlays the list */}
+      <InstallPrompt className="max-md:mb-16" />
 
       <SidebarUserFooter />
     </div>

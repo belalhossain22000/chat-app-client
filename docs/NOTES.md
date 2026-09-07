@@ -237,7 +237,37 @@ to a non-httpOnly cookie so `proxy.ts` can gate `/chat` at the edge.
 
 ---
 
-## 5. Deployment Constraints (Vercel)
+## 5. The PWA Was Silently Broken
+
+It looked complete — manifest, icons, service worker, install hook — but nothing
+installed. Four separate faults, found by driving headless Chrome over CDP
+rather than reading the code:
+
+1. **The service worker never installed.** `install` pre-cached
+   `["/chat", "/login", ...]`, but both sit behind the auth proxy: signed out
+   `/chat` answers `307`, signed in `/login` does. `cache.addAll()` refuses a
+   redirected response and rejects as a unit, so whichever session state you
+   were in, the install aborted and the worker never activated. The shell is now
+   static assets only, cached per item so one failure can't abort the install,
+   and the navigation handler skips `res.redirected` responses.
+2. **`useInstallPrompt` was never mounted.** The hook existed and was correct,
+   but nothing imported it — so the `beforeinstallprompt` event was captured and
+   discarded, and no install affordance ever appeared. Added
+   `features/pwa/components/InstallPrompt.tsx` in the sidebar.
+3. **Registration raced hydration.** `ServiceWorkerRegister` waited on
+   `window.addEventListener("load")`, but hydration usually happens *after*
+   `load` has fired, so the listener was attached to an event already gone. Now
+   checks `document.readyState === "complete"` first.
+4. **`start_url` pointed at a guarded route.** `/chat` redirects when signed
+   out, so a freshly installed app launched into a redirect. Changed to `/`.
+
+Verified over the DevTools Protocol: the worker reports `activated`, the
+`chatflow-v2` cache holds its entries, and `Page.getAppManifest` returns zero
+errors.
+
+---
+
+## 6. Deployment Constraints (Vercel)
 
 Worth recording, because it changed the upload code rather than just the config:
 
@@ -265,7 +295,7 @@ Worth recording, because it changed the upload code rather than just the config:
 
 ---
 
-## 6. What I'd Do With More Time
+## 7. What I'd Do With More Time
 
 - Message virtualization for very long threads (the API has no conversation-list
   pagination either — would add windowing there too).
