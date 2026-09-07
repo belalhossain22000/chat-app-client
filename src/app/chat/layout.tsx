@@ -1,6 +1,10 @@
+import { AuthGate } from "@/features/auth/components/AuthGate";
 import { AppShell } from "@/components/layout/AppShell";
 
-// TODO: auth guard (redirect to /login when no token) + socket connect
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
-  return <AppShell>{children}</AppShell>;
+  return (
+    <AuthGate>
+      <AppShell>{children}</AppShell>
+    </AuthGate>
+  );
 }
