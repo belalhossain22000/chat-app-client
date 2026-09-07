@@ -67,6 +67,7 @@ Copy `.env.example` to `.env`. The chat feature only needs the first three.
 | `DO_SPACE_ENDPOINT` | optional | DigitalOcean Spaces endpoint, e.g. `https://sfo3.digitaloceanspaces.com` |
 | `DO_SPACE_ORIGIN_ENDPOINT` | optional | Public/CDN base for uploaded files |
 | `DO_SPACE_BUCKET` / `DO_SPACE_ACCESS_KEY` / `DO_SPACE_SECRET_KEY` | optional | Spaces credentials for image/video/voice/file attachments |
+| `NEXT_PUBLIC_MAX_UPLOAD_MB` | optional | Host's request-body cap (default `4.5`, matching Vercel Hobby). Per-type limits are clamped to it and the client rejects oversized files before uploading. |
 
 If the Spaces vars are absent the attachment UI still renders but uploads return
 a "not configured" message.
@@ -282,3 +283,18 @@ docs disagree in several places — all verified with live calls:
 2. Add the environment variables above in **Project → Settings → Environment
    Variables**. Set `NEXT_PUBLIC_SITE_URL` to the deployed URL.
 3. Deploy. The landing page is `/`, the chat app is `/chat`.
+
+**What works on Vercel:** real-time chat is unaffected by Vercel's lack of
+WebSocket support — the Socket.IO client connects straight to the chat backend
+(`NEXT_PUBLIC_SOCKET_URL`), not through Vercel. Emoji is client-only. Uploads
+and downloads run as Node.js route handlers.
+
+**The one limit to know:** Vercel Hobby caps a serverless request body at
+4.5 MB, well under the app's own per-type limits (10 MB images, 40 MB video).
+`NEXT_PUBLIC_MAX_UPLOAD_MB` clamps those and the client rejects an oversized
+file up front with a clear message, rather than letting the platform reject the
+request with an HTML error page. Raise it on a plan with a bigger cap.
+
+Attachments also need the DigitalOcean Spaces variables and the AI features need
+`GEMINI_API_KEY`; without them those surfaces degrade to a "not configured"
+message instead of breaking.

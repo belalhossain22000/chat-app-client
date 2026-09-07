@@ -3,14 +3,14 @@ import sharp from "sharp";
 import { randomUUID } from "node:crypto";
 import { isSpacesConfigured, uploadToSpaces } from "@/lib/spaces";
 import { checkRateLimit } from "../assistant/rateLimit";
+import {
+  checkUploadSize,
+  type UploadKind,
+} from "@/features/chat/utils/uploadLimits";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
-const MAX_VIDEO_BYTES = 40 * 1024 * 1024; // 40 MB
-const MAX_FILE_BYTES = 20 * 1024 * 1024; // 20 MB
-const MAX_AUDIO_BYTES = 15 * 1024 * 1024; // 15 MB
 const IMAGE_MAX_DIM = 1600;
 
 const VIDEO_TYPES = new Set([
@@ -100,29 +100,17 @@ export async function POST(request: Request) {
       { status: 415 },
     );
   }
-  if (isImage && file.size > MAX_IMAGE_BYTES) {
-    return NextResponse.json(
-      { error: "Image is too large (max 10 MB)." },
-      { status: 413 },
-    );
-  }
-  if (isVideo && file.size > MAX_VIDEO_BYTES) {
-    return NextResponse.json(
-      { error: "Video is too large (max 40 MB)." },
-      { status: 413 },
-    );
-  }
-  if (isFile && file.size > MAX_FILE_BYTES) {
-    return NextResponse.json(
-      { error: "File is too large (max 20 MB)." },
-      { status: 413 },
-    );
-  }
-  if (isAudio && file.size > MAX_AUDIO_BYTES) {
-    return NextResponse.json(
-      { error: "Voice message is too large." },
-      { status: 413 },
-    );
+  const kind: UploadKind = isImage
+    ? "image"
+    : isVideo
+      ? "video"
+      : isAudio
+        ? "audio"
+        : "file";
+
+  const tooLarge = checkUploadSize(kind, file.size);
+  if (tooLarge) {
+    return NextResponse.json({ error: tooLarge }, { status: 413 });
   }
 
   const input = Buffer.from(await file.arrayBuffer());

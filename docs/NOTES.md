@@ -237,7 +237,35 @@ to a non-httpOnly cookie so `proxy.ts` can gate `/chat` at the edge.
 
 ---
 
-## 5. What I'd Do With More Time
+## 5. Deployment Constraints (Vercel)
+
+Worth recording, because it changed the upload code rather than just the config:
+
+- **Real-time survives serverless.** Vercel can't hold a WebSocket, but the
+  Socket.IO client connects directly to the chat backend
+  (`NEXT_PUBLIC_SOCKET_URL`), so the live surface never depends on the Vercel
+  host. Emoji is entirely client-side; uploads/downloads are Node.js route
+  handlers (`runtime = "nodejs"`, `maxDuration = 60`).
+- **The 4.5 MB request-body cap (Hobby) is below the app's own limits** (10 MB
+  images, 40 MB video). Over that ceiling the request is rejected by the
+  platform before it reaches the route, so the browser receives an HTML error
+  page and `res.json()` throws — the user would have seen a generic "Upload
+  failed" for what is really a size problem. Fixed by
+  `src/features/chat/utils/uploadLimits.ts`: one shared table used by both the
+  client guard and the route, clamped by `NEXT_PUBLIC_MAX_UPLOAD_MB` (default
+  4.5). The client now refuses an oversized file up front with the real reason,
+  and the fetch handler tolerates a non-JSON body.
+- **Optional integrations degrade, they don't break.** Missing Spaces
+  credentials or `GEMINI_API_KEY` leave those surfaces showing a "not
+  configured" message; only `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_SOCKET_URL`
+  are hard requirements (`lib/env.ts` fails fast on them).
+- **The backend sleeps.** The free Render instance idles out after ~15 minutes,
+  so the first request after a pause takes 30-50s. The skeletons cover it, but
+  it's the first thing a reviewer will notice on a cold link.
+
+---
+
+## 6. What I'd Do With More Time
 
 - Message virtualization for very long threads (the API has no conversation-list
   pagination either — would add windowing there too).

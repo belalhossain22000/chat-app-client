@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Attachment } from "@/features/chat/utils/attachment";
+import { checkUploadSize } from "@/features/chat/utils/uploadLimits";
 
 interface Preview {
   url: string;
@@ -43,6 +44,14 @@ export function useFileUpload() {
               ? "audio"
               : "file");
 
+      // Reject before uploading: past the platform body cap the request never
+      // reaches our route, so the response wouldn't be our JSON error.
+      const tooLarge = checkUploadSize(kind, file.size);
+      if (tooLarge) {
+        toast.error(tooLarge);
+        return null;
+      }
+
       clear();
       const url = URL.createObjectURL(file);
       previewUrlRef.current = url;
@@ -61,9 +70,14 @@ export function useFileUpload() {
           body: form,
           signal: controller.signal,
         });
-        const data = await res.json();
-        if (!res.ok) {
-          toast.error(data.error ?? "Upload failed.");
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data) {
+          toast.error(
+            data?.error ??
+              (res.status === 413
+                ? "That file is too large to upload."
+                : "Upload failed."),
+          );
           clear();
           return null;
         }
