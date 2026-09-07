@@ -56,39 +56,11 @@ export function AttachmentView({ attachment, mine }: AttachmentViewProps) {
 
   if (attachment.kind === "audio") {
     return (
-      <div
-        className={cn(
-          "flex w-[min(280px,78vw)] items-center gap-3 rounded-xl border p-2.5",
-          mine
-            ? "border-accent-hover bg-accent text-accent-contrast"
-            : "border-line bg-surface text-ink",
-        )}
-      >
-        <span
-          className={cn(
-            "flex size-9 shrink-0 items-center justify-center rounded-full",
-            mine ? "bg-accent-contrast/20" : "bg-tint-coral/50 text-accent",
-          )}
-        >
-          <Mic className="size-4" />
-        </span>
-        <audio
-          src={attachment.url}
-          controls
-          preload="metadata"
-          className="h-9 min-w-0 flex-1"
-        />
-        {attachment.duration ? (
-          <span
-            className={cn(
-              "shrink-0 text-xs",
-              mine ? "text-accent-contrast/75" : "text-ink-muted",
-            )}
-          >
-            {fmtDuration(attachment.duration)}
-          </span>
-        ) : null}
-      </div>
+      <AudioPlayer
+        url={attachment.url}
+        duration={attachment.duration}
+        mine={mine}
+      />
     );
   }
 
