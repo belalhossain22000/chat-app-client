@@ -1,17 +1,21 @@
 import type { ISODateString } from "@/types/common.types";
 import type { User } from "./user.types";
 
-export type MessageStatus = "sending" | "sent" | "delivered" | "read" | "failed";
+export type MessageStatus = "sending" | "sent" | "failed";
 
-// REST shape: POST /messages, message history
-export interface MessageRestDto {
+// Live shape from GET /conversations/:id/messages and POST /messages (after _id -> id).
+export interface MessageDto {
   id: string;
-  conversationId: string;
-  senderId: string;
-  sender: User;
-  content: string;
+  conversation: string;
+  sender: string; // user id only
+  text: string;
   createdAt: ISODateString;
-  updatedAt: ISODateString;
+}
+
+// GET /conversations/:id/messages
+export interface MessageHistoryResponse {
+  messages: MessageDto[]; // newest first
+  hasMore: boolean;
 }
 
 // message:new socket event
@@ -23,13 +27,12 @@ export interface MessageSocketDto {
   createdAt: ISODateString;
 }
 
-// Normalised shape the UI renders
+// Normalised shape the UI renders (oldest -> newest). Dedupe by id.
 export interface ChatMessage {
   id: string;
-  tempId?: string;
+  tempId?: string; // set while optimistic
   conversationId: string;
   senderId: string;
-  sender?: User;
   text: string;
   status: MessageStatus;
   createdAt: ISODateString;
@@ -38,7 +41,7 @@ export interface ChatMessage {
 // POST /messages
 export interface SendMessageRequest {
   conversationId: string;
-  content: string;
+  text: string;
 }
 
 // message:send socket event
@@ -46,3 +49,13 @@ export interface SendMessageSocketPayload {
   conversationId: string;
   text: string;
 }
+
+export interface MessagesPage {
+  messages: ChatMessage[]; // oldest -> newest
+  hasMore: boolean;
+  // cursor for the next (older) page = oldest message's createdAt
+  nextCursor: string | null;
+}
+
+// Sender details resolved from the conversation participants.
+export type SenderLookup = (senderId: string) => User | undefined;

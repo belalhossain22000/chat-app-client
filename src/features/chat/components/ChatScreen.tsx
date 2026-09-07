@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SidebarPanel, ConversationPanel } from "@/components/layout/AppShell";
 import { ChatSidebar } from "./ChatSidebar";
+import { ChatWindow } from "./ChatWindow";
 import { ChatWindowEmpty } from "./ChatWindowEmpty";
 import { NewChatModal } from "./NewChatModal";
 import { CreateGroupModal } from "./CreateGroupModal";
@@ -33,10 +34,8 @@ export function ChatScreen({ conversationId }: { conversationId?: string }) {
       </SidebarPanel>
 
       <ConversationPanel className={showConversation ? undefined : "max-md:hidden"}>
-        {showConversation ? (
-          <div className="flex h-full items-center justify-center text-ink-muted">
-            ChatWindow
-          </div>
+        {conversationId ? (
+          <ChatWindow conversationId={conversationId} />
         ) : (
           <ChatWindowEmpty onNewConversation={openNew} onCreateGroup={openGroup} />
         )}
