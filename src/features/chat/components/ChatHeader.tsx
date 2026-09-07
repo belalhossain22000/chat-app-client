@@ -7,6 +7,7 @@ import { IconButton } from "@/components/ui/IconButton";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import {
   toggleDetailsPanel,
+  setDetailsPanelOpen,
   setActiveConversation,
 } from "@/features/chat/slice/chat.slice";
 import type { Conversation } from "@/features/chat/types/conversation.types";
@@ -39,16 +40,30 @@ export function ChatHeader({ conversation, currentUserId }: ChatHeaderProps) {
         <ArrowLeft className="size-5" />
       </IconButton>
 
-      <Avatar name={title} isGroup={isGroup} size="md" />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-ink">{title}</p>
-        {subtitle && (
-          <p className="truncate text-xs text-ink-muted">{subtitle}</p>
-        )}
-      </div>
+      {/* tapping the identity opens details (a full-screen page on mobile,
+          the side column on desktop) */}
+      <button
+        type="button"
+        onClick={() => dispatch(setDetailsPanelOpen(true))}
+        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+      >
+        <Avatar name={title} isGroup={isGroup} size="md" />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-ink">
+            {title}
+          </span>
+          {subtitle && (
+            <span className="block truncate text-xs text-ink-muted">
+              {subtitle}
+            </span>
+          )}
+        </span>
+      </button>
 
+      {/* desktop-only collapse toggle */}
       <IconButton
         label={detailsOpen ? "Hide details" : "Show details"}
+        className="hidden lg:inline-flex"
         onClick={() => dispatch(toggleDetailsPanel())}
       >
         {detailsOpen ? (

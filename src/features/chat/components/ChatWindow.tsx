@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { RefreshCw, Wifi, ArrowLeft } from "lucide-react";
 import { ChatHeader } from "./ChatHeader";
 import { ChatHeaderSkeleton } from "./ChatHeaderSkeleton";
 import { MessageList } from "./MessageList";
@@ -10,7 +11,7 @@ import { GroupManagement } from "./GroupManagement";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Button } from "@/components/ui/Button";
-import { RefreshCw, Wifi } from "lucide-react";
+import { IconButton } from "@/components/ui/IconButton";
 import { useGetConversationsQuery } from "@/features/chat/api/conversations.api";
 import {
   useGetMessagesQuery,
@@ -26,6 +27,7 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const detailsOpen = useAppSelector((s) => s.chat.isDetailsPanelOpen);
+  const closeDetails = () => dispatch(setDetailsPanelOpen(false));
 
   const { data: conversations } = useGetConversationsQuery();
   const conversation = useMemo(
@@ -81,8 +83,15 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
     );
   }
 
+  const detailsContent =
+    conversation.type === "group" ? (
+      <GroupManagement conversation={conversation} currentUserId={user?.id} />
+    ) : (
+      <ChatDetailsPanel conversation={conversation} currentUserId={user?.id} />
+    );
+
   return (
-    <div className="flex h-full min-w-0">
+    <div className="relative flex h-full min-w-0">
       <div className="flex min-w-0 flex-1 flex-col bg-background">
         <ChatHeader conversation={conversation} currentUserId={user?.id} />
 
@@ -125,19 +134,27 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
         <MessageInput conversationId={conversationId} onSend={send} />
       </div>
 
-      <SidePanel open={detailsOpen} onClose={() => dispatch(setDetailsPanelOpen(false))}>
-        {conversation.type === "group" ? (
-          <GroupManagement
-            conversation={conversation}
-            currentUserId={user?.id}
-          />
-        ) : (
-          <ChatDetailsPanel
-            conversation={conversation}
-            currentUserId={user?.id}
-          />
-        )}
-      </SidePanel>
+      {/* desktop: sliding side column */}
+      <div className="hidden lg:flex">
+        <SidePanel open={detailsOpen} onClose={closeDetails}>
+          {detailsContent}
+        </SidePanel>
+      </div>
+
+      {/* mobile: full-screen details page over the chat */}
+      {detailsOpen && (
+        <div className="absolute inset-0 z-40 flex flex-col bg-surface lg:hidden">
+          <div className="flex items-center gap-2 border-b border-line px-3 py-3">
+            <IconButton label="Back to chat" size="sm" onClick={closeDetails}>
+              <ArrowLeft className="size-5" />
+            </IconButton>
+            <span className="text-base font-semibold text-ink">
+              {conversation.type === "group" ? "Group info" : "Contact info"}
+            </span>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto">{detailsContent}</div>
+        </div>
+      )}
     </div>
   );
 }

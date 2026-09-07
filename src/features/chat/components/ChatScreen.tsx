@@ -72,7 +72,7 @@ export function ChatScreen() {
       {/* mobile-only profile page */}
       {mobileProfileVisible && (
         <section className="flex min-w-0 flex-1 flex-col md:hidden">
-          <ProfileView />
+          <ProfileView onBack={() => setMobileTab("chats")} />
         </section>
       )}
 

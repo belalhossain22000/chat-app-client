@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Phone, CalendarDays, ShieldCheck, Copy, Check } from "lucide-react";
+import { Phone, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
-import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
 import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/utils/cn";
@@ -19,12 +17,10 @@ function InfoRow({
   icon,
   label,
   value,
-  action,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
-  action?: React.ReactNode;
 }) {
   return (
     <div className="flex items-start gap-3 py-2.5">
@@ -33,7 +29,6 @@ function InfoRow({
         <p className="text-xs text-ink-muted">{label}</p>
         <p className="truncate text-sm font-medium text-ink">{value}</p>
       </div>
-      {action}
     </div>
   );
 }
@@ -47,22 +42,10 @@ export function ProfileModal({
 }) {
   const { user } = useAuth();
   const preset = useAvatarPreset();
-  const [copied, setCopied] = useState(false);
 
   const memberSince = user?.createdAt
     ? format(new Date(user.createdAt), "MMM d, yyyy")
     : "—";
-
-  async function copyId() {
-    if (!user?.id) return;
-    try {
-      await navigator.clipboard.writeText(user.id);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      toast.error("Couldn't copy");
-    }
-  }
 
   return (
     <Modal open={open} onClose={onClose} title="Profile" size="md">
@@ -93,9 +76,8 @@ export function ProfileModal({
                 style={{ backgroundColor: AVATAR_SWATCH[p] }}
                 className={cn(
                   "size-7 rounded-full transition-transform hover:scale-110",
-                  preset === p
-                    ? "ring-2 ring-ink ring-offset-2 ring-offset-surface"
-                    : "",
+                  preset === p &&
+                    "ring-2 ring-ink ring-offset-2 ring-offset-surface",
                 )}
               />
             ))}
@@ -117,29 +99,6 @@ export function ProfileModal({
           icon={<CalendarDays className="size-4" />}
           label="Member since"
           value={memberSince}
-        />
-      </div>
-
-      <div className="border-t border-line px-5 py-4">
-        <p className="mb-1 text-sm font-semibold text-ink">Account</p>
-        <InfoRow
-          icon={<ShieldCheck className="size-4" />}
-          label="Account ID"
-          value={user?.id ?? "—"}
-          action={
-            <button
-              type="button"
-              onClick={copyId}
-              aria-label="Copy account ID"
-              className="mt-0.5 text-ink-muted transition-colors hover:text-ink"
-            >
-              {copied ? (
-                <Check className="size-4 text-success-ink" />
-              ) : (
-                <Copy className="size-4" />
-              )}
-            </button>
-          }
         />
       </div>
     </Modal>
