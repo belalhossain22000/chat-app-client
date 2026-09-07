@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
@@ -23,9 +23,14 @@ export function RenameGroupModal({
   const [name, setName] = useState(currentName);
   const [rename, { isLoading }] = useRenameGroupMutation();
 
-  useEffect(() => {
-    if (open) setName(currentName);
-  }, [open, currentName]);
+  // reset the field each time the modal is (re)opened
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open && !wasOpen) {
+    setWasOpen(true);
+    setName(currentName);
+  } else if (!open && wasOpen) {
+    setWasOpen(false);
+  }
 
   const trimmed = name.trim();
   const canSave = trimmed.length >= 2 && trimmed !== currentName && !isLoading;

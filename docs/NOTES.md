@@ -130,7 +130,7 @@ rather than faked.
 | Online / offline presence dots | Decorative only | No presence endpoint or socket event |
 | "X is typing…" | Omitted | No typing socket event (`message:new` / `conversation:updated` only) |
 | Read receipts (✓✓) | Omitted | No read-state API |
-| File / image messages, shared files panel | Omitted | Message API is text-only |
+| Shared files / links side panel | Omitted | No API for it |
 | Profile "About me", avatar upload, edit profile | Read-only profile | No profile-write endpoint |
 | Group photo & description (`create group` / `edit group` designs) | Omitted | `POST /conversations/group` takes only `{ name, participantIds }`; no update-description endpoint |
 | Demote an admin | Omitted | Only `POST /conversations/:id/admins` (promote) exists — no demote |
@@ -210,14 +210,43 @@ to a non-httpOnly cookie so `middleware.ts` can gate `/chat` at the edge.
   production choice.
 - **PWA** — `manifest.webmanifest` + a hand-written service worker
   (`public/sw.js`, network-first for navigations, cache-first for assets, never
-  touches `/api` or the socket) so the app installs on any device.
+  touches `/api` or the socket) so the app installs on any device, plus a mobile
+  bottom tab bar and FAB.
+- **In-chat AI assistant** — a ✨ panel in the chat header with three modes,
+  backed by `POST /api/chat-assist` (Gemini, server-side key, same rate limit):
+  *Summarize* the thread, *Draft a reply* (drops into the composer), *Ask about
+  this chat*. Plus **smart reply chips** above the composer (Gmail-style) that
+  appear when the last message isn't yours — tap to send. A one-line notice
+  tells the user the transcript is sent to Gemini.
+- **Attachments — images, video, voice, files** — the message API is text-only,
+  so attachments are uploaded to **DigitalOcean Spaces** (S3-compatible) through
+  `POST /api/upload` and encoded as a compact `[[att:kind|url|name|size|meta]]`
+  token inside the message text, parsed back out for rendering. Images are
+  optimised server-side with **sharp** (auto-rotate from EXIF, cap 1600px,
+  re-encode as WebP); every upload gets a `randomUUID` key so re-uploading the
+  same file never collides. Downloads stream through `POST /api/download` with
+  `Content-Disposition: attachment` (in-page, no navigation; the route only
+  proxies the configured Spaces origin). Voice notes record via `MediaRecorder`
+  and render with a **custom waveform player** (Web Audio API peak extraction,
+  click-to-seek), not the native `<audio>` control.
+- **Custom emoji picker popover** (`emoji-picker-react`, lazy-loaded on first
+  open, native emoji, caret-aware insertion).
+- **Landing page polish** — Lenis smooth scrolling (lazy-loaded, paused while the
+  mobile menu is open), scroll-reveal without layout shift, a floating
+  back-to-top, and all hero/section imagery served as pre-optimised WebP.
 
 ---
 
 ## 5. What I'd Do With More Time
 
-- Message virtualization for very long threads (API has no conversation-list
+- Message virtualization for very long threads (the API has no conversation-list
   pagination either — would add windowing there too).
-- Debounced conversation-list search is client-side today; fine at this scale.
-- Proper reconnect reconciliation (refetch missed messages after socket drop).
-- Automated tests (component + a small integration pass on the chat panel).
+- Real waveforms for voice notes need CORS enabled on the Spaces bucket;
+  without it the player falls back to seeded bars.
+- Server-side video poster/thumbnail generation (needs ffmpeg, awkward on
+  serverless).
+- Move the AI rate-limiter to a shared store (Upstash/Redis) so it survives
+  cold starts and scales across instances.
+- Proper reconnect reconciliation (refetch missed messages after a socket drop).
+- Automated tests — component tests plus a small integration pass on the chat
+  panel (send / receive / retry / scroll).

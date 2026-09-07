@@ -1,15 +1,17 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Provider } from "react-redux";
 import { makeStore, type AppStore } from "@/lib/redux/store";
 import { hydrateToken } from "@/features/auth/slice/auth.slice";
 
 export function ReduxProvider({ children }: { children: ReactNode }) {
-  const storeRef = useRef<AppStore | null>(null);
-  if (!storeRef.current) {
-    storeRef.current = makeStore();
-    storeRef.current.dispatch(hydrateToken());
-  }
-  return <Provider store={storeRef.current}>{children}</Provider>;
+  // one store per client (created lazily on first render)
+  const [store] = useState<AppStore>(() => {
+    const s = makeStore();
+    s.dispatch(hydrateToken());
+    return s;
+  });
+
+  return <Provider store={store}>{children}</Provider>;
 }
