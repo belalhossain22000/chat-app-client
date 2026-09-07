@@ -5,6 +5,9 @@ import { ChatHeader } from "./ChatHeader";
 import { ChatHeaderSkeleton } from "./ChatHeaderSkeleton";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
+import { ChatDetailsPanel } from "./ChatDetailsPanel";
+import { GroupManagement } from "./GroupManagement";
+import { SidePanel } from "@/components/ui/SidePanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { useGetConversationsQuery } from "@/features/chat/api/conversations.api";
@@ -13,11 +16,16 @@ import {
   useLazyGetMessagesQuery,
   useSendMessageMutation,
 } from "@/features/chat/api/messages.api";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { setDetailsPanelOpen } from "@/features/chat/slice/chat.slice";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { ChatMessage } from "@/features/chat/types/message.types";
 
 export function ChatWindow({ conversationId }: { conversationId: string }) {
   const { user } = useAuth();
+  const dispatch = useAppDispatch();
+  const detailsOpen = useAppSelector((s) => s.chat.isDetailsPanelOpen);
+
   const { data: conversations } = useGetConversationsQuery();
   const conversation = useMemo(
     () => conversations?.find((c) => c.id === conversationId),
@@ -73,36 +81,52 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
   }
 
   return (
-    <div className="flex h-full flex-col bg-background">
-      <ChatHeader conversation={conversation} currentUserId={user?.id} />
+    <div className="flex h-full min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col bg-background">
+        <ChatHeader conversation={conversation} currentUserId={user?.id} />
 
-      <div className="min-h-0 flex-1">
-        {isError ? (
-          <EmptyState
-            className="h-full"
-            title="Couldn't load messages"
-            description="Something went wrong while loading this conversation."
-            action={
-              <Button variant="secondary" onClick={() => refetch()}>
-                Try again
-              </Button>
-            }
-          />
-        ) : (
-          <MessageList
-            messages={data?.messages ?? []}
-            conversation={conversation}
-            currentUserId={user?.id}
-            isLoading={isLoading}
-            hasMore={hasMore}
-            isLoadingMore={isLoadingMore}
-            onLoadOlder={loadOlder}
-            onRetry={retry}
-          />
-        )}
+        <div className="min-h-0 flex-1">
+          {isError ? (
+            <EmptyState
+              className="h-full"
+              title="Couldn't load messages"
+              description="Something went wrong while loading this conversation."
+              action={
+                <Button variant="secondary" onClick={() => refetch()}>
+                  Try again
+                </Button>
+              }
+            />
+          ) : (
+            <MessageList
+              messages={data?.messages ?? []}
+              conversation={conversation}
+              currentUserId={user?.id}
+              isLoading={isLoading}
+              hasMore={hasMore}
+              isLoadingMore={isLoadingMore}
+              onLoadOlder={loadOlder}
+              onRetry={retry}
+            />
+          )}
+        </div>
+
+        <MessageInput conversationId={conversationId} onSend={send} />
       </div>
 
-      <MessageInput conversationId={conversationId} onSend={send} />
+      <SidePanel open={detailsOpen} onClose={() => dispatch(setDetailsPanelOpen(false))}>
+        {conversation.type === "group" ? (
+          <GroupManagement
+            conversation={conversation}
+            currentUserId={user?.id}
+          />
+        ) : (
+          <ChatDetailsPanel
+            conversation={conversation}
+            currentUserId={user?.id}
+          />
+        )}
+      </SidePanel>
     </div>
   );
 }

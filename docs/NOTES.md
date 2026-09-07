@@ -111,7 +111,8 @@ rather than faked.
 | Read receipts (✓✓) | Omitted | No read-state API |
 | File / image messages, shared files panel | Omitted | Message API is text-only |
 | Profile "About me", avatar upload, edit profile | Read-only profile | No profile-write endpoint |
-| Group photo & description (`create group` design) | Omitted | `POST /conversations/group` takes only `{ name, participantIds }` |
+| Group photo & description (`create group` / `edit group` designs) | Omitted | `POST /conversations/group` takes only `{ name, participantIds }`; no update-description endpoint |
+| Demote an admin | Omitted | Only `POST /conversations/:id/admins` (promote) exists — no demote |
 | Set status / Settings (user menu) | Removed from menu | No API |
 | Pinned messages | Omitted | No API |
 | Call buttons | Omitted | Out of scope |
