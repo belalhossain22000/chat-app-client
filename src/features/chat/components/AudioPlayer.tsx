@@ -1,14 +1,46 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Play, Pause, Mic } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import { cn } from "@/utils/cn";
+
+const BAR_COUNT = 40;
 
 function fmt(s: number) {
   if (!isFinite(s) || s < 0) s = 0;
   const m = Math.floor(s / 60);
   const r = Math.floor(s % 60);
   return `${m}:${r.toString().padStart(2, "0")}`;
+}
+
+// Downsample the decoded audio into BAR_COUNT amplitude peaks (0..1).
+function extractPeaks(buffer: AudioBuffer, count: number): number[] {
+  const data = buffer.getChannelData(0);
+  const block = Math.floor(data.length / count) || 1;
+  const peaks: number[] = [];
+  let max = 0;
+  for (let i = 0; i < count; i++) {
+    let sum = 0;
+    for (let j = 0; j < block; j++) {
+      const v = data[i * block + j];
+      if (v != null) sum += v * v;
+    }
+    const rms = Math.sqrt(sum / block);
+    peaks.push(rms);
+    if (rms > max) max = rms;
+  }
+  return peaks.map((p) => (max > 0 ? p / max : 0));
+}
+
+// deterministic fallback bars from the URL (used while decoding / on failure)
+function fakePeaks(seed: string, count: number): number[] {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
+  const rand = () => {
+    h = (h * 1103515245 + 12345) & 0x7fffffff;
+    return h / 0x7fffffff;
+  };
+  return Array.from({ length: count }, () => 0.25 + rand() * 0.75);
 }
 
 interface AudioPlayerProps {
@@ -22,6 +54,35 @@ export function AudioPlayer({ url, duration, mine }: AudioPlayerProps) {
   const [playing, setPlaying] = useState(false);
   const [current, setCurrent] = useState(0);
   const [total, setTotal] = useState(duration ?? 0);
+  const [peaks, setPeaks] = useState<number[]>(() => fakePeaks(url, BAR_COUNT));
+
+  // decode for the real waveform
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(url);
+        const arr = await res.arrayBuffer();
+        const Ctx =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext })
+            .webkitAudioContext;
+        const ctx = new Ctx();
+        const buf = await ctx.decodeAudioData(arr);
+        if (!cancelled) {
+          setPeaks(extractPeaks(buf, BAR_COUNT));
+          if (!total && isFinite(buf.duration)) setTotal(buf.duration);
+        }
+        ctx.close();
+      } catch {
+        /* keep fallback bars */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url]);
 
   useEffect(() => {
     const a = audioRef.current;
@@ -53,22 +114,21 @@ export function AudioPlayer({ url, duration, mine }: AudioPlayerProps) {
       a.pause();
       setPlaying(false);
     } else {
-      a.play();
+      void a.play();
       setPlaying(true);
     }
   }
 
-  function seek(e: React.MouseEvent<HTMLDivElement>) {
+  function seekTo(ratio: number) {
     const a = audioRef.current;
     if (!a || !total) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const ratio = (e.clientX - rect.left) / rect.width;
-    a.currentTime = Math.max(0, Math.min(1, ratio)) * total;
-    setCurrent(a.currentTime);
+    const t = Math.max(0, Math.min(1, ratio)) * total;
+    a.currentTime = t;
+    setCurrent(t);
   }
 
-  const pct = useMemo(
-    () => (total > 0 ? Math.min(100, (current / total) * 100) : 0),
+  const progress = useMemo(
+    () => (total > 0 ? Math.min(1, current / total) : 0),
     [current, total],
   );
 
@@ -103,32 +163,44 @@ export function AudioPlayer({ url, duration, mine }: AudioPlayerProps) {
 
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div
-          onClick={seek}
-          className={cn(
-            "h-1.5 cursor-pointer rounded-full",
-            mine ? "bg-accent-contrast/25" : "bg-line",
-          )}
+          role="slider"
+          aria-label="Seek"
+          aria-valuenow={Math.round(progress * 100)}
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            seekTo((e.clientX - rect.left) / rect.width);
+          }}
+          className="flex h-8 cursor-pointer items-center gap-[2px]"
         >
-          <div
-            className={cn(
-              "h-full rounded-full",
-              mine ? "bg-accent-contrast" : "bg-accent",
-            )}
-            style={{ width: `${pct}%` }}
-          />
+          {peaks.map((p, i) => {
+            const filled = i / peaks.length < progress;
+            return (
+              <span
+                key={i}
+                className={cn(
+                  "w-full rounded-full transition-colors",
+                  filled
+                    ? mine
+                      ? "bg-accent-contrast"
+                      : "bg-accent"
+                    : mine
+                      ? "bg-accent-contrast/30"
+                      : "bg-line",
+                )}
+                style={{ height: `${Math.max(12, p * 100)}%` }}
+              />
+            );
+          })}
         </div>
-        <div
+
+        <span
           className={cn(
-            "flex items-center justify-between text-[11px]",
+            "text-[11px]",
             mine ? "text-accent-contrast/75" : "text-ink-muted",
           )}
         >
-          <span className="inline-flex items-center gap-1">
-            <Mic className="size-3" />
-            Voice
-          </span>
-          <span>{fmt(playing || current > 0 ? current : total)}</span>
-        </div>
+          {fmt(playing || current > 0 ? current : total)}
+        </span>
       </div>
     </div>
   );
