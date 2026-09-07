@@ -21,6 +21,12 @@
 
   --color-line: #e7e4dd;
 
+  /* soft tinted backgrounds for icon chips / badges */
+  --color-tint-mint: #d8f0e4;
+  --color-tint-coral: #ffe0dc;
+  --color-tint-amber: #fdeccb;
+  --color-tint-amber-ink: #8a6d1f;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
