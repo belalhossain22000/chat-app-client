@@ -212,7 +212,12 @@ mobile Lighthouse stays green.
 
 ## How I used AI tools
 
-I used an AI coding assistant throughout, in the way I would on the job:
+**Tool:** Claude Code — Anthropic's CLI agent, running Claude Opus — as the
+coding assistant throughout. (Google Gemini also appears in this project, but as
+a *product feature*: the landing-page assistant and the smart replies. It didn't
+write any code.)
+
+I used it the way I would on the job:
 
 - **Scaffolding & boilerplate** — the initial folder structure, RTK Query
   endpoint shells, Tailwind token setup, repetitive skeleton components.
