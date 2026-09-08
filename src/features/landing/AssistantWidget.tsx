@@ -74,17 +74,20 @@ export function AssistantWidget() {
   return (
     <>
       <div
-        className="group fixed right-6 z-50 flex items-center gap-2"
+        className="group fixed right-6 z-50 flex flex-col items-end"
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
       >
         <span
           className={cn(
-            "pointer-events-none select-none rounded-full bg-ink px-3 py-1.5 text-xs font-medium text-background shadow-lg transition-all duration-200",
+            "pointer-events-none absolute right-0 bottom-full mb-2 select-none whitespace-nowrap rounded-full bg-ink px-3 py-1.5 text-xs font-medium text-background shadow-lg transition-all duration-200",
             // never on small screens: it crowds the FAB and the tab bar
             "max-sm:hidden",
-            open
-              ? "translate-x-2 opacity-0"
-              : "opacity-100 group-hover:-translate-x-0.5",
+            // a real tooltip now — absolutely positioned so it never affects
+            // this container's flow/height (the back-to-top arrow is placed
+            // relative to that flow); hidden at rest so it doesn't sit on top
+            // of the hero mockup behind it, only appears on hover/focus
+            "translate-y-2 opacity-0",
+            !open && "group-hover:translate-y-0 group-hover:opacity-100",
           )}
         >
           Ask about ChatFlow

@@ -19,7 +19,7 @@ export function BackToTop() {
       type="button"
       aria-label="Back to top"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.5rem + 3.5rem + 1.25rem)" }}
+      style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.5rem + 3.5rem + 2.5rem)" }}
       className={cn(
         // sits directly above the assistant trigger, sharing its right edge
         "fixed right-6 z-50 flex size-10 items-center justify-center rounded-full",
