@@ -73,13 +73,18 @@ export function AssistantWidget() {
 
   return (
     <>
-      <div className="group fixed bottom-6 right-6 z-50 flex items-center gap-2">
+      <div
+        className="group fixed right-6 z-50 flex items-center gap-2"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
+      >
         <span
           className={cn(
             "pointer-events-none select-none rounded-full bg-ink px-3 py-1.5 text-xs font-medium text-background shadow-lg transition-all duration-200",
+            // never on small screens: it crowds the FAB and the tab bar
+            "max-sm:hidden",
             open
               ? "translate-x-2 opacity-0"
-              : "opacity-100 group-hover:-translate-x-0.5 max-sm:hidden",
+              : "opacity-100 group-hover:-translate-x-0.5",
           )}
         >
           Ask about ChatFlow
@@ -101,12 +106,15 @@ export function AssistantWidget() {
 
       <div
         className={cn(
-          "fixed bottom-24 right-6 z-50 flex w-[min(370px,calc(100vw-3rem))] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl transition-all duration-300",
+          "fixed right-6 z-50 flex w-[min(370px,calc(100vw-3rem))] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl transition-all duration-300",
           open
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0",
         )}
-        style={{ maxHeight: "min(560px, calc(100dvh - 8rem))" }}
+        style={{
+          bottom: "calc(env(safe-area-inset-bottom) + 6rem)",
+          maxHeight: "min(560px, calc(100dvh - 10rem))",
+        }}
       >
         <div className="flex items-center gap-2 border-b border-line bg-tint-coral/30 px-4 py-3">
           <span className="flex size-8 items-center justify-center rounded-lg bg-accent text-accent-contrast">
